@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Squishy Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+  :root{
+    --bubblegum:#FF6FB5;
+    --grape:#9B7BFF;
+    --mint:#3FD9B0;
+    --sky:#45C4FF;
+    --lemon:#FFD23F;
+    --ink:#3A2E4A;
+    --ink-soft:#7C6E8C;
+    --card:#FFFFFF;
+    --line:#F0E6F4;
+    --shadow:0 10px 24px rgba(155,123,255,.18);
+    --shadow-press:0 4px 10px rgba(155,123,255,.20);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito',system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #FFE9F5 0%, transparent 60%),
+      radial-gradient(1200px 600px at 110% 10%, #E4F7FF 0%, transparent 60%),
+      linear-gradient(180deg,#FFF6FB 0%,#F3FBFF 100%);
+    min-height:100vh;
+    overscroll-behavior:none;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:16px 16px 120px;}
+
+  /* Header */
+  header{
+    display:flex;align-items:center;gap:12px;
+    padding:6px 4px 14px;
+  }
+  .logo{
+    font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;
+    letter-spacing:.5px;line-height:1;display:flex;align-items:center;gap:8px;
+  }
+  .logo .blob{
+    width:34px;height:34px;border-radius:14px 16px 13px 17px;
+    background:linear-gradient(140deg,var(--bubblegum),var(--grape));
+    box-shadow:inset 0 -4px 8px rgba(0,0,0,.12), var(--shadow);
+    animation:wiggle 4s ease-in-out infinite;
+  }
+  @keyframes wiggle{0%,100%{transform:rotate(-4deg) scale(1)}50%{transform:rotate(4deg) scale(1.05)}}
+  .logo small{display:block;font-family:'Nunito';font-weight:700;font-size:12px;color:var(--ink-soft);letter-spacing:.3px;}
+
+  /* Tabs */
+  .tabs{display:flex;gap:8px;background:#fff;border-radius:20px;padding:6px;box-shadow:var(--shadow);position:sticky;top:10px;z-index:20;}
+  .tab{
+    flex:1;border:none;background:transparent;font-family:'Fredoka';font-weight:600;font-size:16px;
+    color:var(--ink-soft);padding:12px 6px;border-radius:15px;cursor:pointer;transition:.18s;
+  }
+  .tab.active{color:#fff;box-shadow:var(--shadow-press);}
+  .tab[data-tab="shop"].active{background:linear-gradient(140deg,var(--mint),var(--sky));}
+  .tab[data-tab="make"].active{background:linear-gradient(140deg,var(--bubblegum),var(--grape));}
+  .tab[data-tab="print"].active{background:linear-gradient(140deg,var(--lemon),var(--bubblegum));}
+
+  .view{display:none;animation:pop .25s ease;}
+  .view.active{display:block;}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
+
+  section.card{background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:18px;margin-top:16px;}
+  h2{font-family:'Fredoka';font-weight:600;margin:0 0 4px;font-size:20px;}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 14px;font-weight:700;}
+
+  /* Squishy buttons */
+  .btn{
+    font-family:'Fredoka';font-weight:600;font-size:18px;color:#fff;border:none;cursor:pointer;
+    padding:16px 18px;border-radius:20px;width:100%;
+    box-shadow:0 8px 0 rgba(0,0,0,.10), var(--shadow);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:active{transform:translateY(5px) scale(.98);box-shadow:0 3px 0 rgba(0,0,0,.10), var(--shadow-press);}
+  .btn.green{background:linear-gradient(140deg,var(--mint),var(--sky));}
+  .btn.pink{background:linear-gradient(140deg,var(--bubblegum),var(--grape));}
+  .btn.lemon{background:linear-gradient(140deg,var(--lemon),#FFB03F);color:var(--ink);}
+  .btn.ghost{background:#fff;color:var(--ink-soft);box-shadow:inset 0 0 0 2px var(--line), var(--shadow-press);}
+  .btn.small{font-size:15px;padding:11px 14px;border-radius:15px;box-shadow:0 5px 0 rgba(0,0,0,.08);}
+  .btn.small:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.08);}
+
+  /* Inputs */
+  label.fld{display:block;font-weight:800;font-size:14px;margin:12px 0 6px;color:var(--ink);}
+  input[type=text],input[type=number]{
+    width:100%;font-family:'Nunito';font-weight:700;font-size:18px;color:var(--ink);
+    padding:14px 16px;border:none;border-radius:16px;background:#FBF6FE;
+    box-shadow:inset 0 0 0 2px var(--line);outline:none;
+  }
+  input:focus{box-shadow:inset 0 0 0 2px var(--grape);}
+
+  .photo-pick{
+    display:flex;align-items:center;justify-content:center;gap:10px;flex-direction:column;
+    width:100%;height:150px;border-radius:18px;background:#FBF6FE;
+    box-shadow:inset 0 0 0 2px var(--line);cursor:pointer;overflow:hidden;position:relative;
+    font-family:'Fredoka';font-weight:500;color:var(--ink-soft);
+  }
+  .photo-pick img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+  .photo-pick .emoji{font-size:40px;}
+
+  /* Shop: scanner + tiles + cart */
+  #reader{border-radius:18px;overflow:hidden;margin-bottom:8px;}
+  #reader video{border-radius:18px;}
+  .scan-status{text-align:center;font-weight:800;color:var(--ink-soft);font-size:14px;min-height:20px;margin-top:6px;}
+  .type-row{display:flex;gap:8px;margin-top:12px;}
+  .type-row input{flex:1;font-family:'Nunito';font-weight:700;font-size:16px;color:var(--ink);padding:13px 14px;border:none;border-radius:14px;background:#FBF6FE;box-shadow:inset 0 0 0 2px var(--line);outline:none;}
+  .type-row input:focus{box-shadow:inset 0 0 0 2px var(--mint);}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .tile{
+    background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:10px;cursor:pointer;border:none;
+    display:flex;flex-direction:column;gap:6px;text-align:center;transition:transform .08s;
+  }
+  .tile:active{transform:scale(.95);}
+  .tile .pic{width:100%;aspect-ratio:1;border-radius:14px;object-fit:cover;background:#F3ECF8;}
+  .tile .pic.placeholder{display:flex;align-items:center;justify-content:center;font-size:34px;}
+  .tile .nm{font-family:'Fredoka';font-weight:600;font-size:14px;line-height:1.1;color:var(--ink);}
+  .tile .pr{font-weight:800;color:var(--bubblegum);font-size:15px;}
+
+  /* Cart */
+  .cart{position:fixed;left:0;right:0;bottom:0;z-index:30;}
+  .cart-inner{max-width:760px;margin:0 auto;background:#fff;border-radius:26px 26px 0 0;
+    box-shadow:0 -10px 30px rgba(155,123,255,.20);padding:14px 16px 18px;}
+  .cart-list{max-height:160px;overflow:auto;}
+  .cart-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);}
+  .cart-row .ci-pic{width:40px;height:40px;border-radius:12px;object-fit:cover;background:#F3ECF8;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .cart-row .ci-nm{flex:1;font-family:'Fredoka';font-weight:500;font-size:15px;}
+  .cart-row .ci-q{display:flex;align-items:center;gap:8px;}
+  .qbtn{width:30px;height:30px;border-radius:10px;border:none;background:#FBF6FE;box-shadow:inset 0 0 0 2px var(--line);font-weight:800;font-size:18px;color:var(--ink);cursor:pointer;line-height:1;}
+  .ci-pr{font-weight:800;width:64px;text-align:right;}
+  .cart-foot{display:flex;align-items:center;gap:12px;margin-top:10px;}
+  .total{font-family:'Fredoka';font-weight:700;font-size:26px;flex:1;}
+  .total small{display:block;font-family:'Nunito';font-weight:800;font-size:12px;color:var(--ink-soft);}
+  .empty{color:var(--ink-soft);text-align:center;font-weight:800;padding:18px 0;}
+
+  /* Items list (make tab) */
+  .item-row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;background:#FBF6FE;margin-top:10px;}
+  .item-row .ir-pic{width:50px;height:50px;border-radius:13px;object-fit:cover;background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 auto;}
+  .item-row .ir-info{flex:1;min-width:0;}
+  .item-row .ir-nm{font-family:'Fredoka';font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .item-row .ir-meta{font-weight:800;font-size:13px;color:var(--ink-soft);}
+  .del{border:none;background:#fff;color:#FF6FB5;font-weight:800;font-size:13px;padding:9px 11px;border-radius:12px;box-shadow:inset 0 0 0 2px var(--line);cursor:pointer;}
+
+  /* Print tags */
+  .tags{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .tag{background:#fff;border-radius:16px;box-shadow:inset 0 0 0 2px var(--line);padding:10px;text-align:center;}
+  .tag .tpic{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#F3ECF8;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:6px;}
+  .tag .tnm{font-family:'Fredoka';font-weight:600;font-size:13px;line-height:1.05;}
+  .tag .tpr{font-weight:800;color:var(--bubblegum);font-size:14px;margin:2px 0 4px;}
+  .tag svg{width:100%;height:48px;}
+  .tag .tprint{margin-top:6px;width:100%;border:none;cursor:pointer;font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--ink);
+    background:linear-gradient(140deg,var(--lemon),#FFB03F);padding:8px;border-radius:11px;box-shadow:0 4px 0 rgba(0,0,0,.08);transition:transform .08s;}
+  .tag .tprint:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.08);}
+
+  .hint{font-size:13px;color:var(--ink-soft);font-weight:700;background:#FBF6FE;border-radius:14px;padding:12px 14px;margin-top:12px;line-height:1.4;}
+  .toast{
+    position:fixed;left:50%;top:24px;transform:translateX(-50%) translateY(-120%);
+    background:var(--ink);color:#fff;font-family:'Fredoka';font-weight:600;font-size:17px;
+    padding:14px 22px;border-radius:18px;box-shadow:var(--shadow);z-index:99;transition:transform .35s cubic-bezier(.2,1.4,.4,1);
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .toast.win{background:linear-gradient(140deg,var(--mint),var(--sky));}
+
+  @media (max-width:420px){ .grid,.tags{grid-template-columns:repeat(2,1fr);} }
+
+  /* Print sheet */
+  .print-only{display:none;}
+  @media print{
+    body{background:#fff;}
+    .wrap{padding:0;max-width:none;}
+    header,.tabs,.cart,.no-print{display:none !important;}
+    .print-only{display:block;}
+    #printSheet{display:grid !important;grid-template-columns:repeat(3,1fr);gap:8mm;padding:8mm;}
+    .ptag{border:1.5px dashed #bbb;border-radius:8px;padding:6px;text-align:center;break-inside:avoid;}
+    .ptag .pp{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;}
+    .ptag .pn{font-family:'Fredoka';font-weight:600;font-size:12px;margin-top:4px;}
+    .ptag .ppr{font-weight:800;font-size:13px;}
+    .ptag svg{width:100%;height:42px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><span class="blob"></span><span>Squishy Store<small>scan • squish • shop</small></span></div>
+  </header>
+
+  <div class="tabs no-print">
+    <button class="tab active" data-tab="shop">🛒 Shop</button>
+    <button class="tab" data-tab="make">✨ Make</button>
+    <button class="tab" data-tab="print">🖨️ Tags</button>
+  </div>
+
+  <!-- ========== SHOP ========== -->
+  <div class="view active" id="shop">
+    <section class="card">
+      <h2>Cashier</h2>
+      <p class="sub">Scan a tag with the camera, or tap a squishy to ring it up.</p>
+      <button class="btn green" id="scanToggle">📷 Start scanning</button>
+      <div id="reader" style="display:none;margin-top:12px;"></div>
+      <div class="scan-status" id="scanStatus"></div>
+      <div class="type-row">
+        <input type="text" id="codeInput" inputmode="numeric" placeholder="Type the number under a barcode" />
+        <button class="btn green small" id="codeGo" style="width:auto;">Ring up</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>The shelf</h2>
+      <p class="sub">Tap to add to the cart.</p>
+      <div class="grid" id="shopGrid"></div>
+      <div class="empty" id="shopEmpty" style="display:none;">No squishies yet! Go to ✨ Make to add some.</div>
+    </section>
+  </div>
+
+  <!-- ========== MAKE ========== -->
+  <div class="view" id="make">
+    <section class="card">
+      <h2>Make a new squishy</h2>
+      <p class="sub">Add a picture, a name and a price. We'll make its barcode.</p>
+
+      <label class="fld">Picture</label>
+      <label class="photo-pick" for="photoInput" id="photoPick">
+        <span class="emoji">📷</span><span>Tap to add a photo</span>
+      </label>
+      <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none;" />
+
+      <label class="fld">Item name</label>
+      <input type="text" id="nameInput" placeholder="e.g. Mini Peach Squishy" />
+
+      <label class="fld">Price ($)</label>
+      <input type="number" id="priceInput" placeholder="4.99" inputmode="decimal" step="0.01" min="0" />
+
+      <div style="height:14px;"></div>
+      <button class="btn pink" id="saveItem">✨ Make barcode</button>
+    </section>
+
+    <section class="card">
+      <h2>Your squishies</h2>
+      <p class="sub" id="itemCount">0 items</p>
+      <div id="itemList"></div>
+    </section>
+  </div>
+
+  <!-- ========== PRINT ========== -->
+  <div class="view" id="print">
+    <section class="card">
+      <h2>Price tags</h2>
+      <p class="sub">Print these, cut them out, and stick them on the squishies!</p>
+      <button class="btn lemon" id="printBtn">🖨️ Print all tags</button>
+      <div style="height:14px;"></div>
+      <div class="tags" id="tagPreview"></div>
+      <div class="empty" id="tagEmpty" style="display:none;">No tags yet — make some squishies first!</div>
+    </section>
+  </div>
+</div>
+
+<!-- Cart -->
+<div class="cart no-print" id="cartBar" style="display:none;">
+  <div class="cart-inner">
+    <div class="cart-list" id="cartList"></div>
+    <div class="cart-foot">
+      <div class="total"><small>TOTAL</small><span id="cartTotal">$0.00</span></div>
+      <button class="btn ghost small" style="width:auto;" id="clearCart">Clear</button>
+      <button class="btn green small" style="width:auto;padding-left:22px;padding-right:22px;" id="chargeBtn">💳 Charge</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden print sheet -->
+<div class="print-only"><div id="printSheet"></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- storage (works as a Claude artifact AND as a hosted/downloaded file) ---------- */
+const KEY='squishyStoreCatalog';
+const HAS_WS = (typeof window!=='undefined' && window.storage && typeof window.storage.get==='function');
+let catalog = [];     // loaded async in init()
+let cart = [];        // {id, qty}
+let scanner=null, scanning=false, lastScan={code:null,t:0};
+
+async function load(){
+  if(HAS_WS){
+    try{ const r=await window.storage.get(KEY); return (r&&r.value)?JSON.parse(r.value):[]; }
+    catch(e){ return []; }            // key not set yet → empty
+  }
+  try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){ return []; }
+}
+function save(){
+  const data=JSON.stringify(catalog);
+  if(HAS_WS){ try{ window.storage.set(KEY,data); }catch(e){} return; }
+  try{ localStorage.setItem(KEY,data); }catch(e){}
+}
+function money(n){ return '$'+Number(n).toFixed(2); }
+function newCode(){ let c; do{ c=String(Math.floor(10000000+Math.random()*89999999)); }while(catalog.some(i=>i.id===c)); return c; }
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    if(t.dataset.tab!=='shop' && scanning) stopScan();
+    if(t.dataset.tab==='print') renderTags();
+  };
+});
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(msg,win){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.toggle('win',!!win); el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),1600);
+}
+
+/* ---------- photo handling ---------- */
+let pendingPhoto=null;
+document.getElementById('photoInput').onchange=function(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas'); const max=260;
+      let {width:w,height:h}=img; const s=Math.min(max/w,max/h,1);
+      w=Math.round(w*s); h=Math.round(h*s); c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      pendingPhoto=c.toDataURL('image/jpeg',0.82);
+      const pick=document.getElementById('photoPick');
+      pick.innerHTML='<img src="'+pendingPhoto+'" alt="">';
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(f);
+};
+
+/* ---------- make item ---------- */
+document.getElementById('saveItem').onclick=()=>{
+  const name=document.getElementById('nameInput').value.trim();
+  const price=parseFloat(document.getElementById('priceInput').value);
+  if(!name){ toast('Add a name first 🙂'); return; }
+  if(isNaN(price)||price<0){ toast('Add a price 💲'); return; }
+  catalog.push({id:newCode(),name,price,image:pendingPhoto||null});
+  save();
+  // reset form
+  document.getElementById('nameInput').value='';
+  document.getElementById('priceInput').value='';
+  pendingPhoto=null;
+  document.getElementById('photoPick').innerHTML='<span class="emoji">📷</span><span>Tap to add a photo</span>';
+  document.getElementById('photoInput').value='';
+  renderItems(); renderShop();
+  toast('Squishy made! ✨',true);
+};
+
+function picOrEmoji(item,cls){
+  if(item.image) return '<img class="'+cls+'" src="'+item.image+'" alt="">';
+  return '<div class="'+cls+' placeholder">🧸</div>';
+}
+
+/* ---------- items list ---------- */
+function renderItems(){
+  const list=document.getElementById('itemList');
+  document.getElementById('itemCount').textContent=catalog.length+(catalog.length===1?' item':' items');
+  list.innerHTML='';
+  catalog.forEach(it=>{
+    const row=document.createElement('div'); row.className='item-row';
+    row.innerHTML=
+      (it.image?'<img class="ir-pic" src="'+it.image+'">':'<div class="ir-pic">🧸</div>')+
+      '<div class="ir-info"><div class="ir-nm">'+esc(it.name)+'</div>'+
+      '<div class="ir-meta">'+money(it.price)+' • #'+it.id+'</div></div>'+
+      '<button class="del">Delete</button>';
+    row.querySelector('.del').onclick=()=>{
+      catalog=catalog.filter(x=>x.id!==it.id); save(); renderItems(); renderShop(); renderTags();
+    };
+    list.appendChild(row);
+  });
+}
+
+/* ---------- shop grid ---------- */
+function renderShop(){
+  const g=document.getElementById('shopGrid');
+  const empty=document.getElementById('shopEmpty');
+  g.innerHTML='';
+  empty.style.display=catalog.length?'none':'block';
+  catalog.forEach(it=>{
+    const b=document.createElement('button'); b.className='tile';
+    b.innerHTML=picOrEmoji(it,'pic')+'<div class="nm">'+esc(it.name)+'</div><div class="pr">'+money(it.price)+'</div>';
+    b.onclick=()=>addToCart(it.id);
+    g.appendChild(b);
+  });
+}
+
+/* ---------- cart ---------- */
+function addToCart(id){
+  const it=catalog.find(x=>x.id===id); if(!it) return;
+  const row=cart.find(c=>c.id===id);
+  if(row) row.qty++; else cart.push({id,qty:1});
+  renderCart();
+  toast(it.name+' added 🛒');
+}
+function changeQty(id,d){
+  const row=cart.find(c=>c.id===id); if(!row) return;
+  row.qty+=d; if(row.qty<=0) cart=cart.filter(c=>c.id!==id);
+  renderCart();
+}
+function cartTotal(){ return cart.reduce((s,c)=>{const it=catalog.find(x=>x.id===c.id);return s+(it?it.price*c.qty:0)},0); }
+function renderCart(){
+  const bar=document.getElementById('cartBar'), list=document.getElementById('cartList');
+  bar.style.display=cart.length?'block':'none';
+  list.innerHTML='';
+  cart.forEach(c=>{
+    const it=catalog.find(x=>x.id===c.id); if(!it) return;
+    const row=document.createElement('div'); row.className='cart-row';
+    row.innerHTML=
+      (it.image?'<img class="ci-pic" src="'+it.image+'">':'<div class="ci-pic">🧸</div>')+
+      '<div class="ci-nm">'+esc(it.name)+'</div>'+
+      '<div class="ci-q"><button class="qbtn" data-d="-1">−</button><b>'+c.qty+'</b><button class="qbtn" data-d="1">+</button></div>'+
+      '<div class="ci-pr">'+money(it.price*c.qty)+'</div>';
+    row.querySelectorAll('.qbtn').forEach(q=>q.onclick=()=>changeQty(c.id,parseInt(q.dataset.d)));
+    list.appendChild(row);
+  });
+  document.getElementById('cartTotal').textContent=money(cartTotal());
+}
+document.getElementById('clearCart').onclick=()=>{cart=[];renderCart();};
+document.getElementById('chargeBtn').onclick=()=>{
+  if(!cart.length) return;
+  const t=cartTotal();
+  toast('Paid '+money(t)+'! 🎉 Thank you!',true);
+  cart=[]; renderCart();
+};
+
+/* ---------- scanning ---------- */
+const scanBtn=document.getElementById('scanToggle');
+scanBtn.onclick=()=> scanning?stopScan():startScan();
+
+/* type-the-number checkout (works everywhere, incl. the artifact) */
+function ringByCode(){
+  const inp=document.getElementById('codeInput');
+  const code=inp.value.trim();
+  if(!code) return;
+  const it=catalog.find(x=>x.id===code);
+  if(it){ addToCart(it.id); inp.value=''; document.getElementById('scanStatus').textContent=''; }
+  else { document.getElementById('scanStatus').textContent='No squishy with #'+esc(code)+' 🤔'; }
+}
+document.getElementById('codeGo').onclick=ringByCode;
+document.getElementById('codeInput').addEventListener('keydown',e=>{ if(e.key==='Enter') ringByCode(); });
+// inside the artifact, lead with typing since the camera is blocked there
+if(HAS_WS){ scanBtn.textContent='📷 Try camera (or type below)'; }
+
+function startScan(){
+  const reader=document.getElementById('reader');
+  const status=document.getElementById('scanStatus');
+
+  // scanner library didn't load (no internet?)
+  if(typeof Html5Qrcode==='undefined'){
+    status.textContent='Scanner is still loading — needs internet. Tap the squishies below to ring them up!';
+    return;
+  }
+
+  reader.style.display='block';
+  scanBtn.textContent='✋ Stop scanning';
+  status.textContent='Point the camera at a barcode…';
+
+  // only pass formats if the enum is available, otherwise scan everything
+  let opts;
+  if(typeof Html5QrcodeSupportedFormats!=='undefined'){
+    opts={formatsToSupport:[
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.QR_CODE,
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.UPC_A
+    ]};
+  }
+
+  try{
+    scanner=new Html5Qrcode('reader',opts);
+    scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:160}},onScan)
+      .then(()=>{scanning=true;})
+      .catch(showCamErr);
+  }catch(err){ showCamErr(err); }
+}
+
+function showCamErr(err){
+  const status=document.getElementById('scanStatus');
+  const name=(err&&err.name)||'';
+  let msg;
+  if(HAS_WS)
+    msg='📷 The camera can\'t run inside the Claude artifact. Type the number under the barcode below to ring it up — or open the hosted version to scan for real!';
+  else if(!window.isSecureContext)
+    msg='📷 The camera only turns on over <b>https</b>. Open this from a GitHub Pages link (not the file or the preview) and tap Start scanning. Meanwhile, tap the squishies below to play!';
+  else if(name==='NotAllowedError'||name==='SecurityError')
+    msg='📷 Camera was blocked. Tap the camera/lock icon in the address bar, allow the camera, then tap Start scanning again.';
+  else if(name==='NotFoundError'||name==='OverconstrainedError')
+    msg='No camera found here — tap the squishies below to ring them up!';
+  else
+    msg='Couldn\'t start the camera here. Tap the squishies below to ring them up!';
+  status.innerHTML=msg;
+  scanBtn.textContent='📷 Start scanning';
+  document.getElementById('reader').style.display='none';
+  scanning=false;
+}
+function stopScan(){
+  if(scanner){ scanner.stop().then(()=>scanner.clear()).catch(()=>{}); }
+  scanning=false;
+  document.getElementById('reader').style.display='none';
+  scanBtn.textContent='📷 Start scanning';
+  document.getElementById('scanStatus').textContent='';
+}
+function onScan(code){
+  const now=Date.now();
+  if(lastScan.code===code && now-lastScan.t<1600) return; // debounce
+  lastScan={code,t:now};
+  const it=catalog.find(x=>x.id===code);
+  if(it){ addToCart(it.id); beep(); }
+  else { document.getElementById('scanStatus').textContent='Hmm, that tag isn\'t in the store yet 🤔'; }
+}
+function beep(){
+  try{
+    const a=new (window.AudioContext||window.webkitAudioContext)();
+    const o=a.createOscillator(),g=a.createGain();
+    o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.08;
+    o.start();o.stop(a.currentTime+0.09);
+  }catch(e){}
+}
+
+/* ---------- print tags ---------- */
+function renderTags(){
+  const prev=document.getElementById('tagPreview');
+  document.getElementById('tagEmpty').style.display=catalog.length?'none':'block';
+  prev.innerHTML='';
+  catalog.forEach(it=>{
+    const t=document.createElement('div'); t.className='tag';
+    t.innerHTML=
+      (it.image?'<img class="tpic" src="'+it.image+'">':'<div class="tpic">🧸</div>')+
+      '<div class="tnm">'+esc(it.name)+'</div><div class="tpr">'+money(it.price)+'</div>'+
+      '<svg class="bc" data-code="'+it.id+'"></svg>'+
+      '<button class="tprint">🖨️ Print</button>';
+    t.querySelector('.tprint').onclick=()=>printTags([it]);
+    prev.appendChild(t);
+  });
+  // render on-screen preview barcodes
+  document.querySelectorAll('svg.bc').forEach(svg=>{
+    try{ JsBarcode(svg,svg.dataset.code,{format:'CODE128',displayValue:true,fontSize:13,height:40,margin:2,background:'transparent'}); }catch(e){}
+  });
+}
+
+/* make a barcode as a PNG so it prints reliably everywhere */
+function barcodePng(code){
+  const c=document.createElement('canvas');
+  try{ JsBarcode(c,code,{format:'CODE128',displayValue:true,fontSize:16,height:50,margin:6,background:'#ffffff'}); }
+  catch(e){ return ''; }
+  return c.toDataURL('image/png');
+}
+
+const PRINT_CSS=
+  "*{box-sizing:border-box;font-family:'Fredoka','Nunito',system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}"+
+  "body{margin:0;padding:8mm;display:flex;flex-wrap:wrap;gap:7mm;justify-content:flex-start;}"+
+  ".ptag{width:52mm;border:1.5px dashed #c4b8d0;border-radius:8px;padding:6px 8px 8px;text-align:center;break-inside:avoid;page-break-inside:avoid;}"+
+  ".ptag .pp{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;}"+
+  ".ptag .pn{font-weight:600;font-size:12pt;margin-top:5px;line-height:1.1;}"+
+  ".ptag .ppr{font-weight:800;font-size:14pt;color:#FF6FB5;margin:1px 0 3px;}"+
+  ".ptag .pbc{width:100%;}";
+
+function printTags(items){
+  if(!items.length) return;
+  const body=items.map(it=>
+    '<div class="ptag">'+
+      (it.image?'<img class="pp" src="'+it.image+'">':'')+
+      '<div class="pn">'+esc(it.name)+'</div>'+
+      '<div class="ppr">'+money(it.price)+'</div>'+
+      '<img class="pbc" src="'+barcodePng(it.id)+'">'+
+    '</div>'
+  ).join('');
+
+  let f=document.getElementById('printFrame');
+  if(!f){
+    f=document.createElement('iframe'); f.id='printFrame';
+    f.setAttribute('aria-hidden','true');
+    f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    document.body.appendChild(f);
+  }
+  const doc=f.contentWindow.document;
+  doc.open();
+  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+PRINT_CSS+'</style></head><body>'+body+'</body></html>');
+  doc.close();
+
+  const go=()=>{ try{ f.contentWindow.focus(); f.contentWindow.print(); }catch(e){} };
+  const imgs=doc.images, total=imgs.length;
+  if(!total){ setTimeout(go,100); return; }
+  let done=0; const tick=()=>{ if(++done>=total) setTimeout(go,80); };
+  for(const im of imgs){ if(im.complete) tick(); else { im.onload=tick; im.onerror=tick; } }
+  setTimeout(go,1500); // safety fallback if an image stalls
+}
+
+document.getElementById('printBtn').onclick=()=>printTags(catalog);
+
+/* ---------- util ---------- */
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ---------- init ---------- */
+/* ---------- init ---------- */
+(async function init(){
+  catalog = await load();
+  renderItems(); renderShop(); renderCart();
+})();
+</script>
+</body>
+</html>
