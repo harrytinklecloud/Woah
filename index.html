@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
 <style>
   :root{
     --bubblegum:#FF6FB5;
@@ -221,6 +222,78 @@
 
   @media (max-width:420px){ .grid,.tags{grid-template-columns:repeat(2,1fr);} }
 
+  /* ===== Header buttons + share pill ===== */
+  header{position:relative;}
+  .hdr-btn{margin-left:auto;border:none;background:#fff;width:42px;height:42px;border-radius:14px;
+    font-size:20px;box-shadow:var(--shadow);cursor:pointer;transition:transform .08s;}
+  .hdr-btn:active{transform:scale(.9);}
+  .share-pill{margin-left:8px;background:linear-gradient(140deg,var(--mint),var(--sky));color:#fff;
+    font-family:'Fredoka';font-weight:600;font-size:13px;padding:8px 12px;border-radius:14px;box-shadow:var(--shadow);
+    display:flex;align-items:center;gap:6px;animation:pulse 2s ease-in-out infinite;}
+
+  /* ===== Returns mode ===== */
+  body.returns-mode{background:
+    radial-gradient(1200px 600px at 10% -10%, #FFE0E0 0%, transparent 60%),
+    radial-gradient(1200px 600px at 110% 10%, #FFEFEA 0%, transparent 60%),
+    linear-gradient(180deg,#FFF6F4 0%,#FFF1ED 100%);}
+  body.returns-mode .tabs{box-shadow:0 0 0 3px #FF9090, var(--shadow);}
+  body.returns-mode #returnsBtn{background:linear-gradient(140deg,#FF6F6F,#FF9090);color:#fff;box-shadow:inset 0 0 0 2px transparent, var(--shadow-press);}
+  body.returns-mode #chargeBtn{background:linear-gradient(140deg,#FF6F6F,#FF9090) !important;}
+  .cart-row.refund{background:#FFF0F0;border-radius:12px;padding:8px;margin:4px 0;}
+  .cart-row.refund .ci-nm::before{content:'↩ ';color:#E84A4A;}
+  .cart-row.refund .ci-pr{color:#E84A4A;}
+
+  /* ===== Generic modal ===== */
+  .modal-bg{position:fixed;inset:0;z-index:85;display:none;align-items:center;justify-content:center;padding:18px;
+    background:rgba(40,28,58,.55);backdrop-filter:blur(6px);}
+  .modal-bg.open{display:flex;animation:fade .2s ease;}
+  .modal-card{position:relative;width:100%;max-width:380px;background:#fff;border-radius:28px;box-shadow:0 24px 60px rgba(40,28,58,.4);
+    padding:22px;animation:rise .28s cubic-bezier(.2,1.3,.4,1);}
+  .modal-x{position:absolute;top:10px;right:10px;width:34px;height:34px;border:none;background:#FBF6FE;border-radius:12px;
+    font-size:14px;font-weight:800;color:var(--ink-soft);cursor:pointer;box-shadow:inset 0 0 0 2px var(--line);}
+  .share-stage{display:none;}
+  .share-stage.on{display:block;}
+
+  .share-code{font-family:'Fredoka';font-weight:700;font-size:46px;letter-spacing:8px;text-align:center;color:var(--ink);
+    background:linear-gradient(140deg,#FBF6FE,#F0E6F4);padding:18px 12px;border-radius:18px;margin:8px 0 6px;
+    box-shadow:inset 0 0 0 2px var(--line);}
+  .share-status{text-align:center;font-weight:800;color:var(--ink-soft);font-size:13px;margin:8px 0;min-height:18px;}
+  .share-status.ok{color:#16a085;}
+  .share-status.err{color:#E84A4A;}
+  .code-input{width:100%;font-family:'Fredoka';font-weight:700;font-size:34px;letter-spacing:8px;text-align:center;text-transform:uppercase;
+    padding:16px;border:none;border-radius:16px;background:#FBF6FE;box-shadow:inset 0 0 0 2px var(--line);outline:none;color:var(--ink);}
+  .code-input:focus{box-shadow:inset 0 0 0 2px var(--grape);}
+
+  /* ===== Customer-facing display ===== */
+  #custDisplay{display:none;position:fixed;inset:0;z-index:60;background:
+    radial-gradient(1200px 600px at 10% -10%, #FFE9F5 0%, transparent 60%),
+    radial-gradient(1200px 600px at 110% 10%, #E4F7FF 0%, transparent 60%),
+    linear-gradient(180deg,#FFF6FB 0%,#F3FBFF 100%);
+    flex-direction:column;padding:20px;}
+  body.cust-mode #custDisplay{display:flex;}
+  body.cust-mode .wrap, body.cust-mode .cart{display:none !important;}
+  .cust-head{display:flex;align-items:center;gap:10px;}
+  .cust-head .logo{font-size:32px;}
+  .cust-body{flex:1;background:#fff;border-radius:26px;box-shadow:var(--shadow);margin-top:14px;padding:16px;overflow-y:auto;display:flex;flex-direction:column;}
+  .cust-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+  .cust-empty.hide{display:none;}
+  .cust-emoji{font-size:80px;margin-bottom:8px;animation:wiggle 4s ease-in-out infinite;}
+  .cust-welcome{font-family:'Fredoka';font-weight:700;font-size:38px;color:var(--ink);}
+  .cust-sub{color:var(--ink-soft);font-weight:800;font-size:15px;margin-top:4px;}
+  .cust-list{display:none;flex-direction:column;gap:10px;}
+  .cust-list.on{display:flex;}
+  .cust-line{display:flex;align-items:center;gap:14px;padding:10px;border-radius:16px;background:#FBF6FE;animation:rise .3s ease;}
+  .cust-line.refund{background:#FFF0F0;}
+  .cust-line .cl-pic{width:60px;height:60px;border-radius:14px;object-fit:cover;background:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;flex:0 0 auto;}
+  .cust-line .cl-info{flex:1;min-width:0;}
+  .cust-line .cl-nm{font-family:'Fredoka';font-weight:600;font-size:19px;line-height:1.1;}
+  .cust-line .cl-meta{font-weight:800;font-size:13px;color:var(--ink-soft);margin-top:3px;}
+  .cust-line .cl-pr{font-family:'Fredoka';font-weight:700;font-size:22px;color:var(--bubblegum);}
+  .cust-line.refund .cl-pr{color:#E84A4A;}
+  .cust-foot{margin-top:14px;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:18px 22px;display:flex;align-items:center;}
+  .cust-total{font-family:'Fredoka';font-weight:700;font-size:42px;flex:1;}
+  .cust-total small{display:block;font-family:'Nunito';font-weight:800;font-size:13px;color:var(--ink-soft);letter-spacing:1px;}
+
   /* Print sheet */
   .print-only{display:none;}
   @media print{
@@ -241,6 +314,8 @@
 <div class="wrap">
   <header>
     <div class="logo"><span class="blob"></span><span>Squishy Store<small>scan • squish • shop</small></span></div>
+    <button class="hdr-btn" id="shareOpenBtn" title="Split Share Mode">📡</button>
+    <div class="share-pill" id="sharePill" style="display:none;"></div>
   </header>
 
   <div class="tabs no-print">
@@ -261,6 +336,7 @@
         <input type="text" id="codeInput" inputmode="numeric" placeholder="Type the number under a barcode" />
         <button class="btn green small" id="codeGo" style="width:auto;">Ring up</button>
       </div>
+      <button class="btn ghost small" id="returnsBtn" style="margin-top:10px;">↩ Returns mode</button>
     </section>
 
     <section class="card">
@@ -390,6 +466,72 @@
       <button class="btn green" style="margin-top:14px;" id="payNew">New sale</button>
     </div>
 
+  </div>
+</div>
+
+<!-- ===== Split Share Mode ===== -->
+<div id="shareOverlay" class="modal-bg">
+  <div class="modal-card">
+    <button class="modal-x" id="shareX">✕</button>
+
+    <div class="share-stage on" id="shareHome">
+      <h2 style="margin:0 0 4px;font-family:'Fredoka';font-weight:600;">📡 Split Share Mode</h2>
+      <p class="pay-sub2">Pair two iPads. One is the cashier, the other shows the customer their cart and lets them tap-to-pay.</p>
+      <button class="btn pink" id="shareStartBtn">📤 Start as cashier</button>
+      <div style="height:10px;"></div>
+      <button class="btn green" id="shareJoinBtn">📥 Join as customer</button>
+      <div id="shareLinkedBox" style="display:none;margin-top:14px;">
+        <div class="hint" id="shareLinkedHint" style="margin-top:0;"></div>
+        <button class="btn ghost small" id="shareLeaveBtn" style="margin-top:10px;">Leave split share</button>
+      </div>
+    </div>
+
+    <div class="share-stage" id="shareCashier">
+      <h2 style="margin:0 0 4px;font-family:'Fredoka';font-weight:600;">Type this on the other iPad</h2>
+      <p class="pay-sub2">Open Squishy Store on the second iPad, tap 📡, choose Join as customer, and type:</p>
+      <div class="share-code" id="shareCodeBig">------</div>
+      <div class="share-status" id="shareCashierStatus">Waiting for customer iPad to join…</div>
+      <button class="btn ghost small" id="shareCashierCancel" style="margin-top:8px;">Cancel</button>
+    </div>
+
+    <div class="share-stage" id="shareJoin">
+      <h2 style="margin:0 0 4px;font-family:'Fredoka';font-weight:600;">Type the code</h2>
+      <p class="pay-sub2">Enter the 6-character code shown on the cashier iPad.</p>
+      <input type="text" id="joinCodeInput" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC123" class="code-input" />
+      <div class="share-status" id="shareJoinStatus"></div>
+      <button class="btn pink" id="joinGoBtn" style="margin-top:8px;">Activate split share</button>
+      <button class="btn ghost small" id="joinBackBtn" style="margin-top:8px;">Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cashier "waiting on customer to pay" -->
+<div id="waitOverlay" class="modal-bg">
+  <div class="modal-card" style="text-align:center;">
+    <div class="spinner"></div>
+    <h2 style="margin:6px 0 4px;font-family:'Fredoka';font-weight:600;">📡 Waiting for customer…</h2>
+    <p class="pay-sub2" id="waitAmt"></p>
+    <p class="pay-sub2">They're tapping to pay on the other iPad.</p>
+    <button class="btn ghost small" id="waitCancel" style="margin-top:6px;">Cancel sale</button>
+  </div>
+</div>
+
+<!-- Customer-facing display (only visible to a paired customer iPad) -->
+<div id="custDisplay">
+  <div class="cust-head">
+    <div class="logo"><span class="blob"></span><span>Squishy Store<small>welcome!</small></span></div>
+    <button class="hdr-btn" id="custLeaveBtn" title="Leave split share">✕</button>
+  </div>
+  <div class="cust-body">
+    <div class="cust-empty" id="custEmpty">
+      <div class="cust-emoji">🧸</div>
+      <div class="cust-welcome">Welcome!</div>
+      <div class="cust-sub">Your items will show up here as the cashier scans them.</div>
+    </div>
+    <div class="cust-list" id="custList"></div>
+  </div>
+  <div class="cust-foot">
+    <div class="cust-total"><small id="custTotalLabel">TOTAL</small><span id="custTotal">$0.00</span></div>
   </div>
 </div>
 
@@ -552,39 +694,64 @@ function renderShop(){
 }
 
 /* ---------- cart ---------- */
+let returnsMode=false;
 function addToCart(id){
   const it=catalog.find(x=>x.id===id); if(!it) return;
-  const row=cart.find(c=>c.id===id);
-  if(row) row.qty++; else cart.push({id,qty:1});
+  // returns mode → look for existing refund line, sales mode → look for sale line
+  const row=cart.find(c=>c.id===id && !!c.refund===returnsMode);
+  if(row) row.qty++; else cart.push({id,qty:1,refund:returnsMode});
   renderCart();
-  sfxChaChing();
-  toast(it.name+' added 🛒');
+  if(returnsMode){ sfxClick(); toast(it.name+' added to refund ↩'); }
+  else { sfxChaChing(); toast(it.name+' added 🛒'); }
 }
-function changeQty(id,d){
-  const row=cart.find(c=>c.id===id); if(!row) return;
-  row.qty+=d; if(row.qty<=0) cart=cart.filter(c=>c.id!==id);
+function changeQty(id,d,refund){
+  const row=cart.find(c=>c.id===id && !!c.refund===!!refund); if(!row) return;
+  row.qty+=d; if(row.qty<=0) cart=cart.filter(c=>!(c.id===id && !!c.refund===!!refund));
   renderCart();
 }
-function cartTotal(){ return cart.reduce((s,c)=>{const it=catalog.find(x=>x.id===c.id);return s+(it?it.price*c.qty:0)},0); }
+function cartTotal(){
+  return cart.reduce((s,c)=>{
+    const it=catalog.find(x=>x.id===c.id); if(!it) return s;
+    return s + it.price*c.qty*(c.refund?-1:1);
+  },0);
+}
 function renderCart(){
   const bar=document.getElementById('cartBar'), list=document.getElementById('cartList');
   bar.style.display=cart.length?'block':'none';
   list.innerHTML='';
   cart.forEach(c=>{
     const it=catalog.find(x=>x.id===c.id); if(!it) return;
-    const row=document.createElement('div'); row.className='cart-row';
+    const row=document.createElement('div'); row.className='cart-row'+(c.refund?' refund':'');
+    const lineTotal=it.price*c.qty*(c.refund?-1:1);
     row.innerHTML=
       (it.image?'<img class="ci-pic" src="'+it.image+'">':'<div class="ci-pic">🧸</div>')+
       '<div class="ci-nm">'+esc(it.name)+'</div>'+
       '<div class="ci-q"><button class="qbtn" data-d="-1">−</button><b>'+c.qty+'</b><button class="qbtn" data-d="1">+</button></div>'+
-      '<div class="ci-pr">'+money(it.price*c.qty)+'</div>';
-    row.querySelectorAll('.qbtn').forEach(q=>q.onclick=()=>changeQty(c.id,parseInt(q.dataset.d)));
+      '<div class="ci-pr">'+money(lineTotal)+'</div>';
+    row.querySelectorAll('.qbtn').forEach(q=>q.onclick=()=>changeQty(c.id,parseInt(q.dataset.d),c.refund));
     list.appendChild(row);
   });
-  document.getElementById('cartTotal').textContent=money(cartTotal());
+  const total=cartTotal();
+  document.getElementById('cartTotal').textContent=money(total);
+  // update charge button label
+  const cb=document.getElementById('chargeBtn');
+  if(total<0) cb.innerHTML='💸 Refund';
+  else if(returnsMode) cb.innerHTML='💸 Refund';
+  else cb.innerHTML='💳 Charge';
+  // broadcast to customer iPad if in share mode
+  broadcastCart();
 }
 document.getElementById('clearCart').onclick=()=>{cart=[];renderCart();};
 document.getElementById('chargeBtn').onclick=openPayment;
+
+/* Returns mode toggle */
+document.getElementById('returnsBtn').onclick=()=>{
+  returnsMode=!returnsMode;
+  document.body.classList.toggle('returns-mode',returnsMode);
+  document.getElementById('returnsBtn').textContent=returnsMode?'✓ Returns ON  •  Tap to exit':'↩ Returns mode';
+  sfxClick();
+  renderCart();
+};
 
 /* ===== Payment terminal ===== */
 const TIP_PCTS=[15,18,20];
@@ -598,6 +765,14 @@ function showStage(id){
 function openPayment(){
   if(!cart.length) return;
   payBase=cartTotal(); payTip=0;
+  // In cashier share mode: send the payment to the customer iPad and show waiting overlay
+  if(shareRole==='cashier' && shareLinked){
+    pubShare({type:'startPay', amount:payBase});
+    document.getElementById('waitAmt').textContent='Amount: '+money(payBase);
+    document.getElementById('waitOverlay').classList.add('open');
+    sfxDoorChime();
+    return;
+  }
   document.getElementById('payAmt').textContent=money(payBase);
   showStage('stageTap');
   document.getElementById('tipCustom').classList.remove('on');
@@ -695,10 +870,19 @@ function finishPay(tip){
   chime(true);
   if(tip>0) setTimeout(sfxCoins, 400);
   setTimeout(sfxBagRustle, 900);
+  // customer iPad → tell the cashier the sale completed
+  if(shareRole==='customer' && shareLinked){
+    pubShare({type:'payDone', base:payBase, tip:payTip, total:grand});
+  }
 }
 document.getElementById('payNew').onclick=()=>{
   closePayment();
-  cart=[]; renderCart();
+  if(shareRole==='customer'){
+    // customer iPad → reset its view back to welcome
+    custCart=[]; renderCustomerCart();
+  } else {
+    cart=[]; renderCart();
+  }
   document.getElementById('tipInput').value='';
 };
 
@@ -917,6 +1101,236 @@ document.getElementById('printBtn').onclick=()=>printTags(catalog);
 
 /* ---------- util ---------- */
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ===================================================================
+   SPLIT SHARE MODE — pair two iPads with a typed code
+   =================================================================== */
+const MQTT_BROKER='wss://broker.emqx.io:8084/mqtt';
+const CODE_CHARS='23456789ABCDEFGHJKMNPQRSTUVWXYZ'; // no confusable 0/O/1/I/L
+let mqClient=null;
+let shareCode=null;
+let shareRole=null;       // 'cashier' | 'customer' | null
+let shareLinked=false;
+let custCart=[];          // mirrored cart on customer iPad
+
+function makeShareCode(){
+  let s=''; for(let i=0;i<6;i++) s+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];
+  return s;
+}
+
+function pubShare(msg){
+  if(!mqClient || !shareCode) return;
+  const myT='squishystore/'+shareCode+'/'+(shareRole==='cashier'?'c2p':'p2c');
+  try{ mqClient.publish(myT, JSON.stringify(msg)); }catch(e){}
+}
+
+function broadcastCart(){
+  if(shareRole!=='cashier' || !shareLinked) return;
+  const items=cart.map(c=>{
+    const it=catalog.find(x=>x.id===c.id);
+    return it?{id:c.id,name:it.name,price:it.price,image:it.image||null,qty:c.qty,refund:!!c.refund}:null;
+  }).filter(Boolean);
+  pubShare({type:'cart', items, total:cartTotal(), returnsMode:returnsMode});
+}
+
+function connectShare(code, role){
+  if(mqClient){ try{ mqClient.end(true); }catch(e){} mqClient=null; }
+  shareCode=code; shareRole=role; shareLinked=false;
+  updateSharePill();
+  if(typeof mqtt==='undefined'){
+    showShareStatus(role,'err','Network library failed to load. Check your internet.');
+    return;
+  }
+  showShareStatus(role,'','Connecting…');
+  const clientId='sq-'+role+'-'+Math.random().toString(36).slice(2,10);
+  try{
+    mqClient=mqtt.connect(MQTT_BROKER,{
+      clientId, clean:true, keepalive:30, connectTimeout:8000, reconnectPeriod:3000
+    });
+  }catch(e){ showShareStatus(role,'err','Could not connect.'); return; }
+
+  mqClient.on('connect',()=>{
+    const theirT='squishystore/'+code+'/'+(role==='cashier'?'p2c':'c2p');
+    mqClient.subscribe(theirT,()=>{
+      pubShare({type:'hello', from:role});
+      showShareStatus(role,'',role==='cashier'?'Waiting for customer iPad to join…':'Connected — waiting for cashier…');
+    });
+  });
+  mqClient.on('message',(topic,payload)=>{
+    let msg; try{ msg=JSON.parse(payload.toString()); }catch(e){ return; }
+    handleShareMsg(msg);
+  });
+  mqClient.on('error',()=>{ showShareStatus(role,'err','Connection error. Retrying…'); });
+  mqClient.on('close',()=>{ shareLinked=false; updateSharePill(); });
+}
+
+function disconnectShare(){
+  if(mqClient){ try{ pubShare({type:'bye'}); mqClient.end(true); }catch(e){} mqClient=null; }
+  shareCode=null; shareRole=null; shareLinked=false;
+  document.body.classList.remove('cust-mode');
+  custCart=[]; renderCustomerCart();
+  updateSharePill();
+  document.getElementById('waitOverlay').classList.remove('open');
+  document.getElementById('payOverlay').classList.remove('open');
+}
+
+function handleShareMsg(msg){
+  if(msg.type==='hello' && msg.from && msg.from!==shareRole){
+    if(!shareLinked){
+      shareLinked=true;
+      updateSharePill();
+      showShareStatus(shareRole,'ok','Linked! ✓');
+      sfxFanfare();
+      // close share modal after a moment
+      setTimeout(()=>document.getElementById('shareOverlay').classList.remove('open'),1100);
+      if(shareRole==='cashier') broadcastCart();
+      // customer enters customer-display mode
+      if(shareRole==='customer'){
+        document.body.classList.add('cust-mode');
+        renderCustomerCart();
+      }
+      // re-announce so newcomers see us
+      setTimeout(()=>pubShare({type:'hello',from:shareRole}),300);
+    }
+    return;
+  }
+  if(msg.type==='bye'){
+    shareLinked=false; updateSharePill();
+    toast('Other iPad disconnected');
+    return;
+  }
+  if(msg.type==='cart' && shareRole==='customer'){
+    custCart=msg.items||[];
+    custReturnsMode=!!msg.returnsMode;
+    custTotal=msg.total||0;
+    renderCustomerCart();
+    if(custCart.length) sfxChaChing();
+    return;
+  }
+  if(msg.type==='startPay' && shareRole==='customer'){
+    payBase=msg.amount; payTip=0;
+    document.getElementById('payAmt').textContent=money(payBase);
+    showStage('stageTap');
+    document.getElementById('tipCustom').classList.remove('on');
+    document.getElementById('payOverlay').classList.add('open');
+    sfxDoorChime();
+    startPayCamera();
+    return;
+  }
+  if(msg.type==='payDone' && shareRole==='cashier'){
+    document.getElementById('waitOverlay').classList.remove('open');
+    cart=[]; renderCart();
+    sfxFanfare();
+    toast('Payment received! '+money(msg.total)+(msg.tip>0?' (tip '+money(msg.tip)+')':''),true);
+    return;
+  }
+  if(msg.type==='payCancel' && shareRole==='cashier'){
+    document.getElementById('waitOverlay').classList.remove('open');
+    toast('Customer cancelled the payment');
+    return;
+  }
+}
+
+function showShareStatus(role,kind,text){
+  const el=document.getElementById(role==='cashier'?'shareCashierStatus':'shareJoinStatus');
+  if(!el) return;
+  el.className='share-status '+(kind||'');
+  el.textContent=text;
+}
+
+function updateSharePill(){
+  const pill=document.getElementById('sharePill');
+  if(shareLinked){
+    pill.textContent='📡 Linked ('+shareRole+')';
+    pill.style.display='flex';
+  } else if(shareCode){
+    pill.textContent='📡 '+shareCode;
+    pill.style.display='flex';
+  } else {
+    pill.style.display='none';
+  }
+  // update share home modal status
+  const box=document.getElementById('shareLinkedBox');
+  if(box){
+    box.style.display=shareLinked?'block':'none';
+    document.getElementById('shareLinkedHint').textContent=
+      shareLinked?('Linked as '+shareRole+'. Code: '+shareCode):'';
+  }
+}
+
+/* ---------- Share modal wiring ---------- */
+function showShareStage(id){
+  document.querySelectorAll('.share-stage').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+document.getElementById('shareOpenBtn').onclick=()=>{
+  sfxSwoosh();
+  document.getElementById('shareOverlay').classList.add('open');
+  showShareStage('shareHome');
+  updateSharePill();
+};
+document.getElementById('shareX').onclick=()=>document.getElementById('shareOverlay').classList.remove('open');
+document.getElementById('shareStartBtn').onclick=()=>{
+  const code=makeShareCode();
+  document.getElementById('shareCodeBig').textContent=code;
+  showShareStage('shareCashier');
+  connectShare(code,'cashier');
+  sfxPop();
+};
+document.getElementById('shareJoinBtn').onclick=()=>{
+  showShareStage('shareJoin');
+  document.getElementById('joinCodeInput').value='';
+  showShareStatus('customer','','');
+  sfxPop();
+};
+document.getElementById('joinBackBtn').onclick=()=>showShareStage('shareHome');
+document.getElementById('joinGoBtn').onclick=()=>{
+  const v=document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  if(v.length!==6){ showShareStatus('customer','err','Code must be 6 characters'); sfxError(); return; }
+  connectShare(v,'customer');
+};
+document.getElementById('joinCodeInput').addEventListener('input',e=>{
+  e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+});
+document.getElementById('joinCodeInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') document.getElementById('joinGoBtn').click();
+});
+document.getElementById('shareCashierCancel').onclick=()=>{ disconnectShare(); showShareStage('shareHome'); };
+document.getElementById('shareLeaveBtn').onclick=()=>{ disconnectShare(); document.getElementById('shareOverlay').classList.remove('open'); };
+document.getElementById('custLeaveBtn').onclick=()=>{ if(confirm('Leave split share?')) disconnectShare(); };
+document.getElementById('waitCancel').onclick=()=>{
+  pubShare({type:'cancelPay'});
+  document.getElementById('waitOverlay').classList.remove('open');
+};
+
+/* ---------- Customer-facing display rendering ---------- */
+let custReturnsMode=false, custTotal=0;
+function renderCustomerCart(){
+  const list=document.getElementById('custList'), empty=document.getElementById('custEmpty');
+  if(!custCart.length){
+    list.classList.remove('on');
+    empty.classList.remove('hide');
+    document.getElementById('custTotal').textContent='$0.00';
+    document.getElementById('custTotalLabel').textContent='TOTAL';
+    return;
+  }
+  empty.classList.add('hide');
+  list.classList.add('on');
+  list.innerHTML='';
+  custCart.forEach(it=>{
+    const ln=document.createElement('div');
+    ln.className='cust-line'+(it.refund?' refund':'');
+    const lt=it.price*it.qty*(it.refund?-1:1);
+    ln.innerHTML=
+      (it.image?'<img class="cl-pic" src="'+it.image+'">':'<div class="cl-pic">🧸</div>')+
+      '<div class="cl-info"><div class="cl-nm">'+(it.refund?'↩ ':'')+esc(it.name)+'</div>'+
+      '<div class="cl-meta">'+money(it.price)+' × '+it.qty+'</div></div>'+
+      '<div class="cl-pr">'+money(lt)+'</div>';
+    list.appendChild(ln);
+  });
+  document.getElementById('custTotal').textContent=money(custTotal);
+  document.getElementById('custTotalLabel').textContent=custTotal<0?'TO REFUND':'TOTAL';
+}
 
 /* ---------- init ---------- */
 (async function init(){
