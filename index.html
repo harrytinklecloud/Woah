@@ -421,6 +421,7 @@ function newCode(){ let c; do{ c=String(Math.floor(10000000+Math.random()*899999
 /* ---------- tabs ---------- */
 document.querySelectorAll('.tab').forEach(t=>{
   t.onclick=()=>{
+    sfxSwoosh();
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
@@ -475,6 +476,7 @@ document.getElementById('saveItem').onclick=()=>{
   document.getElementById('photoPick').innerHTML='<span class="emoji">📷</span><span>Tap to add a photo</span>';
   document.getElementById('photoInput').value='';
   renderItems(); renderShop();
+  sfxSquish();
   toast('Squishy made! ✨',true);
 };
 
@@ -528,6 +530,7 @@ function renderItems(){
       '<div class="ir-meta">'+money(it.price)+' • #'+it.id+'</div></div>'+
       '<button class="del">Delete</button>';
     row.querySelector('.del').onclick=()=>{
+      sfxClick();
       catalog=catalog.filter(x=>x.id!==it.id); save(); renderItems(); renderShop(); renderTags();
     };
     list.appendChild(row);
@@ -543,7 +546,7 @@ function renderShop(){
   catalog.forEach(it=>{
     const b=document.createElement('button'); b.className='tile';
     b.innerHTML=picOrEmoji(it,'pic')+'<div class="nm">'+esc(it.name)+'</div><div class="pr">'+money(it.price)+'</div>';
-    b.onclick=()=>addToCart(it.id);
+    b.onclick=()=>{ sfxPop(); addToCart(it.id); };
     g.appendChild(b);
   });
 }
@@ -554,6 +557,7 @@ function addToCart(id){
   const row=cart.find(c=>c.id===id);
   if(row) row.qty++; else cart.push({id,qty:1});
   renderCart();
+  sfxChaChing();
   toast(it.name+' added 🛒');
 }
 function changeQty(id,d){
@@ -598,6 +602,7 @@ function openPayment(){
   showStage('stageTap');
   document.getElementById('tipCustom').classList.remove('on');
   document.getElementById('payOverlay').classList.add('open');
+  sfxDoorChime();
   startPayCamera();
 }
 
@@ -644,7 +649,7 @@ async function startPayCamera(){
         for(let i=0;i<d.length;i+=4){ sum+=d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114; }
         const avg=sum/(d.length/4);
         if(avg>60){ if(++bright>5) armed=true; }
-        if(armed && avg<24){ if(++dark>=4){ acceptPayment(); return; } } else { dark=0; }
+        if(armed && avg<24){ if(++dark>=4){ sfxContactless(); acceptPayment(); return; } } else { dark=0; }
       }catch(e){}
       payRAF=requestAnimationFrame(loop);
     };
@@ -688,6 +693,8 @@ function finishPay(tip){
     'Items '+money(payBase)+(payTip?'<br>Tip '+money(payTip):'')+
     '<br><b style="color:var(--ink);font-size:16px;">Total paid '+money(grand)+'</b>';
   chime(true);
+  if(tip>0) setTimeout(sfxCoins, 400);
+  setTimeout(sfxBagRustle, 900);
 }
 document.getElementById('payNew').onclick=()=>{
   closePayment();
@@ -695,24 +702,55 @@ document.getElementById('payNew').onclick=()=>{
   document.getElementById('tipInput').value='';
 };
 
-/* ----- sounds ----- */
-function chime(flourish){
-  try{
-    const A=new (window.AudioContext||window.webkitAudioContext)();
-    const now=A.currentTime;
-    const notes=flourish?[[880,0],[1174.7,.1],[1568,.2]]:[[880,0],[1318.5,.12]];
-    notes.forEach(([f,t])=>{
-      const o=A.createOscillator(), g=A.createGain();
-      o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(A.destination);
-      g.gain.setValueAtTime(0.0001,now+t);
-      g.gain.exponentialRampToValueAtTime(0.28,now+t+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001,now+t+0.5);
-      o.start(now+t); o.stop(now+t+0.55);
-    });
-  }catch(e){}
+/* ===================================================================
+   SOUND LIBRARY — all synthesized, no audio files needed
+   =================================================================== */
+let _AC=null;
+function AC(){ if(!_AC) _AC=new (window.AudioContext||window.webkitAudioContext)(); return _AC; }
+document.addEventListener('touchstart',()=>{ try{AC().resume();}catch(e){} },{once:true,passive:true});
+document.addEventListener('mousedown', ()=>{ try{AC().resume();}catch(e){} },{once:true,passive:true});
+function snd(fn){ try{ fn(AC()); }catch(e){} }
+
+function osc(a,type,freq,start,dur,gainPeak,fadeIn,fadeOut){
+  const o=a.createOscillator(),g=a.createGain();
+  o.type=type; o.frequency.value=freq; o.connect(g); g.connect(a.destination);
+  g.gain.setValueAtTime(0.0001,start);
+  g.gain.exponentialRampToValueAtTime(gainPeak,start+fadeIn);
+  g.gain.exponentialRampToValueAtTime(0.0001,start+fadeIn+fadeOut);
+  o.start(start); o.stop(start+fadeIn+fadeOut+.02);
+}
+function noise(a,start,dur,gain,lpFreq){
+  const buf=a.createBuffer(1,a.sampleRate*dur,a.sampleRate);
+  const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  const src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();
+  f.type='lowpass'; f.frequency.value=lpFreq||800;
+  src.buffer=buf; src.connect(f); f.connect(g); g.connect(a.destination);
+  g.gain.setValueAtTime(gain,start);
+  g.gain.exponentialRampToValueAtTime(0.0001,start+dur);
+  src.start(start); src.stop(start+dur+.01);
 }
 
-/* ---------- scanning ---------- */
+function beep(){ snd(a=>{ osc(a,'square',1760,a.currentTime,.03,.06,.004,.026); }); }
+function sfxError(){ snd(a=>{ const t=a.currentTime; [0,.12,.24].forEach(d=>osc(a,'sawtooth',120,t+d,.1,.07,.005,.09)); }); }
+function sfxChaChing(){ snd(a=>{ const t=a.currentTime; osc(a,'sine',2800,t,.06,.12,.003,.055); osc(a,'sine',880,t+.06,.4,.15,.005,.38); osc(a,'sine',1108,t+.06,.35,.1,.005,.32); }); }
+function sfxDoorChime(){ snd(a=>{ const t=a.currentTime; osc(a,'sine',783.99,t,.5,.18,.01,.48); osc(a,'sine',659.26,t+.32,.5,.18,.01,.47); }); }
+function sfxBagRustle(){ snd(a=>{ noise(a,a.currentTime,.45,.04,600); }); }
+function sfxPop(){ snd(a=>{ const t=a.currentTime,o=a.createOscillator(),g=a.createGain(); o.type='sine'; o.connect(g); g.connect(a.destination); o.frequency.setValueAtTime(800,t); o.frequency.exponentialRampToValueAtTime(200,t+.08); g.gain.setValueAtTime(.18,t); g.gain.exponentialRampToValueAtTime(0.0001,t+.08); o.start(t); o.stop(t+.09); }); }
+function sfxClick(){ snd(a=>{ noise(a,a.currentTime,.04,.15,300); }); }
+function sfxSwoosh(){ snd(a=>{ const t=a.currentTime,o=a.createOscillator(),g=a.createGain(); o.type='sine'; o.connect(g); g.connect(a.destination); o.frequency.setValueAtTime(300,t); o.frequency.exponentialRampToValueAtTime(900,t+.12); g.gain.setValueAtTime(.06,t); g.gain.exponentialRampToValueAtTime(0.0001,t+.13); o.start(t); o.stop(t+.14); }); }
+function sfxSquish(){ snd(a=>{ const t=a.currentTime; noise(a,t,.18,.06,500); osc(a,'sine',180,t,.18,.04,.01,.16); }); }
+function sfxContactless(){ snd(a=>{ const t=a.currentTime; osc(a,'sine',1046,t,.08,.1,.003,.07); osc(a,'sine',1318,t+.07,.08,.1,.003,.07); }); }
+function sfxCoins(){ snd(a=>{ const t=a.currentTime; [0,.07,.16,.23].forEach(d=>{ osc(a,'sine',1200+Math.random()*800,t+d,.18,.1,.003,.17); }); }); }
+function sfxDeclined(){ snd(a=>{ const t=a.currentTime; osc(a,'sawtooth',220,t,.15,.12,.005,.14); osc(a,'sawtooth',180,t+.18,.15,.12,.005,.14); osc(a,'sawtooth',200,t+.36,.2,.12,.005,.19); }); }
+function sfxStoreOpen(){ snd(a=>{ const t=a.currentTime; [[523,.0],[659,.14],[784,.28],[1047,.42]].forEach(([f,d])=>osc(a,'sine',f,t+d,.5,.15,.01,.48)); }); }
+function sfxSpinWhirr(){ snd(a=>{ const t=a.currentTime,o=a.createOscillator(),g=a.createGain(); o.type='sawtooth'; o.connect(g); g.connect(a.destination); o.frequency.setValueAtTime(80,t); o.frequency.exponentialRampToValueAtTime(400,t+1.2); o.frequency.exponentialRampToValueAtTime(200,t+1.8); g.gain.setValueAtTime(.05,t); g.gain.setValueAtTime(.05,t+1.7); g.gain.exponentialRampToValueAtTime(0.0001,t+1.85); o.start(t); o.stop(t+1.9); }); }
+function sfxFanfare(){ snd(a=>{ const t=a.currentTime; [[523,.0],[659,.1],[784,.2],[1047,.3],[784,.4],[1047,.5],[1319,.6]].forEach(([f,d])=>osc(a,'sine',f,t+d,.25,.18,.008,.22)); }); }
+function sfxThwump(){ snd(a=>{ const t=a.currentTime; noise(a,t,.08,.2,400); osc(a,'sine',120,t,.12,.15,.003,.11); }); }
+function sfxAlarm(){ snd(a=>{ const t=a.currentTime; for(let i=0;i<6;i++){ osc(a,'sawtooth',880,t+i*.18,.08,.12,.005,.07); osc(a,'sawtooth',1200,t+i*.18+.09,.08,.1,.005,.07); } }); }
+function sfxSting(){ snd(a=>{ const t=a.currentTime; osc(a,'sine',392,t,.12,.18,.005,.11); osc(a,'sine',494,t+.1,.12,.18,.005,.11); osc(a,'sawtooth',330,t+.22,.4,.15,.01,.38); }); }
+function chime(flourish){ snd(a=>{ const t=a.currentTime; (flourish?[[880,0],[1174.7,.1],[1568,.2]]:[[880,0],[1318.5,.12]]).forEach(([f,d])=>osc(a,'sine',f,t+d,.5,.28,.02,.48)); }); }
+
+/* ---------- print tags ---------- */
 const scanBtn=document.getElementById('scanToggle');
 scanBtn.onclick=()=> scanning?stopScan():startScan();
 
@@ -731,7 +769,7 @@ function ringByCode(){
   if(!code) return;
   const it=catalog.find(x=>x.id===code);
   if(it){ addToCart(it.id); inp.value=''; document.getElementById('scanStatus').textContent=''; }
-  else { document.getElementById('scanStatus').textContent='No squishy with #'+esc(code)+' 🤔'; }
+  else { sfxError(); document.getElementById('scanStatus').textContent='No squishy with #'+esc(code)+' 🤔'; }
 }
 document.getElementById('codeGo').onclick=ringByCode;
 document.getElementById('codeInput').addEventListener('keydown',e=>{ if(e.key==='Enter') ringByCode(); });
@@ -803,15 +841,7 @@ function onScan(code){
   lastScan={code,t:now};
   const it=catalog.find(x=>x.id===code);
   if(it){ addToCart(it.id); beep(); }
-  else { document.getElementById('scanStatus').textContent='Hmm, that tag isn\'t in the store yet 🤔'; }
-}
-function beep(){
-  try{
-    const a=new (window.AudioContext||window.webkitAudioContext)();
-    const o=a.createOscillator(),g=a.createGain();
-    o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.08;
-    o.start();o.stop(a.currentTime+0.09);
-  }catch(e){}
+  else { sfxError(); document.getElementById('scanStatus').textContent='Hmm, that tag isn\'t in the store yet 🤔'; }
 }
 
 /* ---------- print tags ---------- */
@@ -892,7 +922,8 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 (async function init(){
   catalog = await load();
   renderItems(); renderShop(); renderCart();
-  maybeAutoScan();   // Shop is the default tab → turn the camera on automatically
+  maybeAutoScan();
+  setTimeout(sfxDoorChime, 600); // store opening chime on load
 })();
 </script>
 </body>
