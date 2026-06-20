@@ -293,6 +293,60 @@
   .cust-foot{margin-top:14px;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:18px 22px;display:flex;align-items:center;}
   .cust-total{font-family:'Fredoka';font-weight:700;font-size:42px;flex:1;}
   .cust-total small{display:block;font-family:'Nunito';font-weight:800;font-size:13px;color:var(--ink-soft);letter-spacing:1px;}
+  .cust-discount-line{display:flex;justify-content:space-between;padding:6px 12px;margin:6px 0;background:#FFF8E1;border-radius:12px;font-weight:800;color:#A67C00;font-size:15px;}
+  .cust-welcome-name{color:var(--bubblegum);}
+
+  /* ===== Discount panel (cashier only) ===== */
+  .disc-card{background:linear-gradient(140deg,#FFF8E1,#FFEED4);border-radius:18px;padding:14px;margin-top:12px;box-shadow:inset 0 0 0 2px #FFE3A8;}
+  .disc-title{font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 8px;color:#9C7000;}
+  .disc-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .disc-btn{flex:1;min-width:54px;border:none;cursor:pointer;font-family:'Fredoka';font-weight:600;font-size:14px;
+    background:#fff;color:var(--ink);padding:9px 6px;border-radius:11px;box-shadow:inset 0 0 0 2px #FFE3A8;}
+  .disc-btn:active{transform:scale(.95);}
+  .disc-btn.on{background:linear-gradient(140deg,#FFD23F,#FFB03F);box-shadow:0 4px 0 rgba(0,0,0,.08);}
+  .disc-coupon{display:flex;gap:6px;margin-top:8px;}
+  .disc-coupon input{flex:1;padding:9px 12px;border:none;border-radius:11px;font-family:'Fredoka';font-weight:600;font-size:14px;
+    background:#fff;box-shadow:inset 0 0 0 2px #FFE3A8;outline:none;text-transform:uppercase;}
+  .disc-coupon button{border:none;padding:9px 14px;background:linear-gradient(140deg,var(--bubblegum),var(--grape));color:#fff;font-family:'Fredoka';font-weight:600;border-radius:11px;cursor:pointer;}
+  .vip-toggle{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:#fff;border-radius:12px;box-shadow:inset 0 0 0 2px #FFE3A8;}
+  .vip-toggle b{font-family:'Fredoka';font-weight:600;color:var(--ink);}
+  .vip-toggle .vip-sw{width:46px;height:26px;background:#E0D6E8;border-radius:13px;position:relative;cursor:pointer;transition:.2s;}
+  .vip-toggle .vip-sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:.2s;}
+  .vip-toggle.on .vip-sw{background:linear-gradient(140deg,#FFD23F,#FFB03F);}
+  .vip-toggle.on .vip-sw::after{left:23px;}
+  .disc-active{margin-top:8px;font-weight:800;color:#9C7000;font-size:13px;text-align:center;}
+  .cart-discount{padding:8px 12px;margin:4px 0;background:#FFF8E1;border-radius:12px;font-weight:800;color:#9C7000;font-size:14px;display:flex;justify-content:space-between;}
+
+  /* customer name input */
+  .cust-name-row{display:flex;gap:6px;margin-top:10px;}
+  .cust-name-row input{flex:1;padding:11px 14px;border:none;border-radius:12px;font-family:'Fredoka';font-weight:600;font-size:15px;background:#FBF6FE;box-shadow:inset 0 0 0 2px var(--line);outline:none;}
+  .cust-name-row input:focus{box-shadow:inset 0 0 0 2px var(--grape);}
+
+  /* ===== Signature pad ===== */
+  .sign-canvas-wrap{position:relative;width:100%;background:#FBF6FE;border-radius:18px;box-shadow:inset 0 0 0 2px var(--line);margin:8px 0;}
+  #signPad{display:block;width:100%;height:160px;touch-action:none;border-radius:18px;cursor:crosshair;}
+  .sign-line{position:absolute;left:14px;right:14px;bottom:24px;border-bottom:2px dashed #C9B8D6;pointer-events:none;}
+  .sign-x{position:absolute;left:14px;bottom:30px;color:#C9B8D6;font-size:18px;font-weight:800;pointer-events:none;}
+  .sign-hint{color:var(--ink-soft);font-weight:700;font-size:13px;margin:4px 0;text-align:center;}
+  .sign-actions{display:flex;gap:8px;margin-top:8px;}
+  .sign-actions button{flex:1;}
+
+  /* ===== Star rating ===== */
+  .rate-stars{display:flex;justify-content:center;gap:8px;margin:12px 0 6px;}
+  .rate-star{font-size:38px;cursor:pointer;background:none;border:none;transition:transform .12s;filter:grayscale(1) opacity(.4);padding:2px;}
+  .rate-star.lit{filter:none;}
+  .rate-star:active{transform:scale(1.3);}
+  .rate-prompt{text-align:center;font-family:'Fredoka';font-weight:500;font-size:15px;color:var(--ink-soft);margin-top:6px;}
+
+  /* ===== End of Day report ===== */
+  .eod-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+  .eod-stat{background:#FBF6FE;border-radius:14px;padding:12px;text-align:center;}
+  .eod-stat .eod-v{font-family:'Fredoka';font-weight:700;font-size:24px;color:var(--ink);line-height:1.1;}
+  .eod-stat .eod-k{font-family:'Nunito';font-weight:800;font-size:11px;color:var(--ink-soft);letter-spacing:.5px;text-transform:uppercase;margin-top:2px;}
+  .eod-best{margin-top:10px;background:linear-gradient(140deg,#FFF8E1,#FFEED4);padding:12px;border-radius:14px;text-align:center;}
+  .eod-best .eod-best-label{font-family:'Nunito';font-weight:800;font-size:11px;color:#9C7000;letter-spacing:.5px;}
+  .eod-best .eod-best-name{font-family:'Fredoka';font-weight:600;font-size:18px;color:var(--ink);margin-top:2px;}
+  .eod-actions{display:flex;gap:8px;margin-top:14px;}
 
   /* Print sheet */
   .print-only{display:none;}
@@ -337,6 +391,31 @@
         <button class="btn green small" id="codeGo" style="width:auto;">Ring up</button>
       </div>
       <button class="btn ghost small" id="returnsBtn" style="margin-top:10px;">↩ Returns mode</button>
+
+      <div class="disc-card">
+        <p class="disc-title">💰 Discounts (cashier only)</p>
+        <div class="disc-row">
+          <button class="disc-btn" data-pct="5">5%</button>
+          <button class="disc-btn" data-pct="10">10%</button>
+          <button class="disc-btn" data-pct="15">15%</button>
+          <button class="disc-btn" data-pct="20">20%</button>
+          <button class="disc-btn" data-pct="custom">✏️</button>
+          <button class="disc-btn" data-pct="clear">✕</button>
+        </div>
+        <div class="disc-coupon">
+          <input type="text" id="couponInput" placeholder="Coupon code…" maxlength="20" />
+          <button id="couponBtn">Apply</button>
+        </div>
+        <div class="vip-toggle" id="vipToggle">
+          <b>⭐ VIP member <span style="color:var(--ink-soft);font-weight:700;font-size:13px;">(10% off)</span></b>
+          <div class="vip-sw"></div>
+        </div>
+        <div class="disc-active" id="discActive"></div>
+      </div>
+
+      <div class="cust-name-row">
+        <input type="text" id="custNameInput" placeholder="Customer name (shows on customer iPad)" maxlength="30" />
+      </div>
     </section>
 
     <section class="card">
@@ -386,6 +465,12 @@
       <label class="fld">Import (paste from the other iPad)</label>
       <textarea class="movebox" id="importBox" placeholder="Paste your squishies here…"></textarea>
       <button class="btn pink small" id="importBtn" style="width:auto;margin-top:8px;">📥 Import squishies</button>
+    </section>
+
+    <section class="card">
+      <h2>📊 End of day</h2>
+      <p class="sub">See your daily sales report and close the register.</p>
+      <button class="btn lemon" id="eodBtn">📊 View report & close register</button>
     </section>
   </div>
 
@@ -446,6 +531,22 @@
       <p class="pay-sub2" id="okAmt"></p>
     </div>
 
+    <!-- Stage 3.5: signature -->
+    <div class="pay-stage" id="stageSign">
+      <p class="pay-title">Sign here</p>
+      <p class="pay-sub2">Use your finger to sign for your purchase.</p>
+      <div class="sign-canvas-wrap">
+        <canvas id="signPad" width="500" height="160"></canvas>
+        <div class="sign-line"></div>
+        <span class="sign-x">×</span>
+      </div>
+      <div class="sign-actions">
+        <button class="btn ghost small" id="signClear">↺ Clear</button>
+        <button class="btn green small" id="signDone">Continue →</button>
+      </div>
+      <button class="pay-cancel" id="signSkip">Skip signature</button>
+    </div>
+
     <!-- Stage 4: tip -->
     <div class="pay-stage" id="stageTip">
       <p class="pay-title">Add a tip?</p>
@@ -463,6 +564,16 @@
       <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg></div>
       <p class="pay-title" id="doneTitle">All done! 🎉</p>
       <p class="breakdown" id="doneBreak"></p>
+      <div id="rateBlock" style="margin-top:14px;">
+        <p class="rate-prompt">How was your visit?</p>
+        <div class="rate-stars" id="rateStars">
+          <button class="rate-star" data-r="1">⭐</button>
+          <button class="rate-star" data-r="2">⭐</button>
+          <button class="rate-star" data-r="3">⭐</button>
+          <button class="rate-star" data-r="4">⭐</button>
+          <button class="rate-star" data-r="5">⭐</button>
+        </div>
+      </div>
       <button class="btn green" style="margin-top:14px;" id="payNew">New sale</button>
     </div>
 
@@ -525,13 +636,39 @@
   <div class="cust-body">
     <div class="cust-empty" id="custEmpty">
       <div class="cust-emoji">🧸</div>
-      <div class="cust-welcome">Welcome!</div>
+      <div class="cust-welcome">Welcome<span id="custWelcomeName"></span>!</div>
       <div class="cust-sub">Your items will show up here as the cashier scans them.</div>
     </div>
     <div class="cust-list" id="custList"></div>
   </div>
+  <div class="cust-discount-line" id="custDiscountLine" style="display:none;"></div>
   <div class="cust-foot">
     <div class="cust-total"><small id="custTotalLabel">TOTAL</small><span id="custTotal">$0.00</span></div>
+  </div>
+</div>
+
+<!-- ===== End of Day Report ===== -->
+<div id="eodOverlay" class="modal-bg">
+  <div class="modal-card">
+    <button class="modal-x" id="eodX">✕</button>
+    <h2 style="margin:0;font-family:'Fredoka';font-weight:600;">📊 End of Day Report</h2>
+    <p class="pay-sub2" id="eodWhen"></p>
+    <div class="eod-stats">
+      <div class="eod-stat"><div class="eod-v" id="eodSales">0</div><div class="eod-k">Sales</div></div>
+      <div class="eod-stat"><div class="eod-v" id="eodRev">$0.00</div><div class="eod-k">Revenue</div></div>
+      <div class="eod-stat"><div class="eod-v" id="eodTips">$0.00</div><div class="eod-k">Tips</div></div>
+      <div class="eod-stat"><div class="eod-v" id="eodRefunds">0</div><div class="eod-k">Refunds</div></div>
+      <div class="eod-stat"><div class="eod-v" id="eodAvg">$0.00</div><div class="eod-k">Avg sale</div></div>
+      <div class="eod-stat"><div class="eod-v" id="eodRating">—</div><div class="eod-k">Avg rating</div></div>
+    </div>
+    <div class="eod-best" id="eodBestBox" style="display:none;">
+      <div class="eod-best-label">⭐ BEST SELLER</div>
+      <div class="eod-best-name" id="eodBest"></div>
+    </div>
+    <div class="eod-actions">
+      <button class="btn ghost small" id="eodKeep" style="flex:1;">Keep open</button>
+      <button class="btn pink small" id="eodClose" style="flex:1;">🔒 Close register</button>
+    </div>
   </div>
 </div>
 
@@ -557,6 +694,21 @@ function save(){
   if(HAS_WS){ try{ window.storage.set(KEY,data); }catch(e){} return; }
   try{ localStorage.setItem(KEY,data); }catch(e){}
 }
+/* End-of-day stats (persisted) */
+const EOD_KEY='squishyStoreEOD';
+async function loadEOD(){
+  const def={openedAt:Date.now(), sales:0, revenue:0, tips:0, refunds:0, ratings:[], itemCounts:{}};
+  try{
+    if(HAS_WS){ const r=await window.storage.get(EOD_KEY); return (r&&r.value)?Object.assign(def,JSON.parse(r.value)):def; }
+    const raw=localStorage.getItem(EOD_KEY); return raw?Object.assign(def,JSON.parse(raw)):def;
+  }catch(e){ return def; }
+}
+function saveEOD(){
+  const data=JSON.stringify(eod);
+  if(HAS_WS){ try{ window.storage.set(EOD_KEY,data); }catch(e){} return; }
+  try{ localStorage.setItem(EOD_KEY,data); }catch(e){}
+}
+let eod=null; // loaded in init
 function money(n){ return '$'+Number(n).toFixed(2); }
 function newCode(){ let c; do{ c=String(Math.floor(10000000+Math.random()*89999999)); }while(catalog.some(i=>i.id===c)); return c; }
 
@@ -695,9 +847,11 @@ function renderShop(){
 
 /* ---------- cart ---------- */
 let returnsMode=false;
+let discount=null;       // {percent:Number, label:String} or null
+let vipMode=false;
+let customerName='';
 function addToCart(id){
   const it=catalog.find(x=>x.id===id); if(!it) return;
-  // returns mode → look for existing refund line, sales mode → look for sale line
   const row=cart.find(c=>c.id===id && !!c.refund===returnsMode);
   if(row) row.qty++; else cart.push({id,qty:1,refund:returnsMode});
   renderCart();
@@ -709,11 +863,29 @@ function changeQty(id,d,refund){
   row.qty+=d; if(row.qty<=0) cart=cart.filter(c=>!(c.id===id && !!c.refund===!!refund));
   renderCart();
 }
-function cartTotal(){
+function cartSubtotal(){
   return cart.reduce((s,c)=>{
     const it=catalog.find(x=>x.id===c.id); if(!it) return s;
     return s + it.price*c.qty*(c.refund?-1:1);
   },0);
+}
+function discountPercent(){
+  if(vipMode) return Math.max(discount?discount.percent:0, 10); // VIP guarantees at least 10%
+  return discount?discount.percent:0;
+}
+function discountLabel(){
+  if(vipMode && (!discount || discount.percent<=10)) return '⭐ VIP member (10% off)';
+  if(discount) return discount.label;
+  return '';
+}
+function cartDiscount(){
+  const sub=cartSubtotal(); if(sub<=0) return 0;
+  return sub*discountPercent()/100;
+}
+function cartTotal(){
+  const sub=cartSubtotal();
+  if(sub<=0) return sub;             // refunds aren't discounted
+  return sub - cartDiscount();
 }
 function renderCart(){
   const bar=document.getElementById('cartBar'), list=document.getElementById('cartList');
@@ -731,20 +903,23 @@ function renderCart(){
     row.querySelectorAll('.qbtn').forEach(q=>q.onclick=()=>changeQty(c.id,parseInt(q.dataset.d),c.refund));
     list.appendChild(row);
   });
+  // discount summary line in cart
+  const disc=cartDiscount();
+  if(disc>0){
+    const dl=document.createElement('div'); dl.className='cart-discount';
+    dl.innerHTML='<span>'+esc(discountLabel())+'</span><span>−'+money(disc)+'</span>';
+    list.appendChild(dl);
+  }
   const total=cartTotal();
   document.getElementById('cartTotal').textContent=money(total);
-  // update charge button label
   const cb=document.getElementById('chargeBtn');
-  if(total<0) cb.innerHTML='💸 Refund';
-  else if(returnsMode) cb.innerHTML='💸 Refund';
+  if(total<0||returnsMode) cb.innerHTML='💸 Refund';
   else cb.innerHTML='💳 Charge';
-  // broadcast to customer iPad if in share mode
   broadcastCart();
 }
 document.getElementById('clearCart').onclick=()=>{cart=[];renderCart();};
 document.getElementById('chargeBtn').onclick=openPayment;
 
-/* Returns mode toggle */
 document.getElementById('returnsBtn').onclick=()=>{
   returnsMode=!returnsMode;
   document.body.classList.toggle('returns-mode',returnsMode);
@@ -752,6 +927,74 @@ document.getElementById('returnsBtn').onclick=()=>{
   sfxClick();
   renderCart();
 };
+
+/* ----- Discount controls (cashier only) ----- */
+const COUPONS={
+  'SQUISH10':{percent:10,label:'Coupon: SQUISH10 (10% off)'},
+  'SQUISH15':{percent:15,label:'Coupon: SQUISH15 (15% off)'},
+  'SQUISH20':{percent:20,label:'Coupon: SQUISH20 (20% off)'},
+  'SQUISHHALF':{percent:50,label:'Coupon: SQUISHHALF (50% off)'},
+  'FREESQUISH':{percent:100,label:'Coupon: FREESQUISH (Free! 🎉)'},
+  'VIPFRIEND':{percent:15,label:'Coupon: VIPFRIEND (15% off)'}
+};
+function setDiscount(d,silent){
+  discount=d;
+  refreshDiscountUI();
+  if(!silent){ sfxPop(); }
+  renderCart();
+}
+function refreshDiscountUI(){
+  // highlight active discount button
+  const pct=discount?discount.percent:0;
+  document.querySelectorAll('.disc-btn').forEach(b=>{
+    const bp=b.dataset.pct;
+    b.classList.toggle('on', bp!=='custom' && bp!=='clear' && +bp===pct && !!discount && discount.label==='Discount '+bp+'%');
+  });
+  // show active label
+  const act=document.getElementById('discActive');
+  if(discount){ act.textContent='Active: '+discount.label; }
+  else if(vipMode){ act.textContent='Active: VIP member (10% off)'; }
+  else { act.textContent=''; }
+  // vip toggle visual
+  document.getElementById('vipToggle').classList.toggle('on', vipMode);
+}
+document.querySelectorAll('.disc-btn').forEach(b=>{
+  b.onclick=()=>{
+    const v=b.dataset.pct;
+    if(v==='clear'){ setDiscount(null); return; }
+    if(v==='custom'){
+      const p=prompt('Custom discount % (0-100):','25');
+      const n=parseFloat(p);
+      if(!isNaN(n)&&n>=0&&n<=100) setDiscount({percent:n,label:'Discount '+n+'%'});
+      else if(p!==null) sfxError();
+      return;
+    }
+    setDiscount({percent:+v,label:'Discount '+v+'%'});
+  };
+});
+document.getElementById('couponBtn').onclick=()=>{
+  const inp=document.getElementById('couponInput');
+  const code=inp.value.trim().toUpperCase();
+  if(!code){ sfxError(); return; }
+  const c=COUPONS[code];
+  if(!c){ sfxError(); toast('Unknown coupon code'); return; }
+  setDiscount(c);
+  inp.value='';
+  sfxChaChing();
+  toast('Coupon applied! '+c.percent+'% off ✨',true);
+};
+document.getElementById('couponInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') document.getElementById('couponBtn').click();
+});
+document.getElementById('vipToggle').onclick=()=>{
+  vipMode=!vipMode;
+  sfxPop();
+  refreshDiscountUI(); renderCart();
+};
+document.getElementById('custNameInput').addEventListener('input',e=>{
+  customerName=e.target.value.trim();
+  broadcastCart();
+});
 
 /* ===== Payment terminal ===== */
 const TIP_PCTS=[15,18,20];
@@ -797,9 +1040,50 @@ function acceptPayment(){
     showStage('stageOk');
     document.getElementById('okAmt').textContent=money(payBase);
     chime();
-    setTimeout(buildTip,1300);
+    setTimeout(showSignature,1300);
   },750);
 }
+
+/* ----- signature pad ----- */
+let signInited=false, signHasInk=false;
+function showSignature(){
+  showStage('stageSign');
+  if(!signInited) initSignPad();
+  clearSignPad();
+}
+function initSignPad(){
+  signInited=true;
+  const c=document.getElementById('signPad');
+  // size canvas to displayed size for crisp lines
+  const fit=()=>{ const r=c.getBoundingClientRect(); c.width=r.width; c.height=r.height; };
+  setTimeout(fit,30);
+  window.addEventListener('resize',fit);
+  const ctx=c.getContext('2d');
+  let drawing=false,lx=0,ly=0;
+  const pt=e=>{ const r=c.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; };
+  c.addEventListener('pointerdown',e=>{
+    e.preventDefault(); drawing=true; signHasInk=true;
+    [lx,ly]=pt(e); ctx.lineWidth=3; ctx.lineCap='round'; ctx.strokeStyle='#3A2E4A';
+  });
+  c.addEventListener('pointermove',e=>{
+    if(!drawing) return;
+    const [x,y]=pt(e);
+    ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(x,y); ctx.stroke();
+    lx=x; ly=y;
+  });
+  const stop=()=>{ drawing=false; };
+  c.addEventListener('pointerup',stop);
+  c.addEventListener('pointerleave',stop);
+  c.addEventListener('pointercancel',stop);
+}
+function clearSignPad(){
+  const c=document.getElementById('signPad'); if(!c) return;
+  c.getContext('2d').clearRect(0,0,c.width,c.height);
+  signHasInk=false;
+}
+document.getElementById('signClear').onclick=()=>{ clearSignPad(); sfxClick(); };
+document.getElementById('signDone').onclick=()=>{ sfxPop(); buildTip(); };
+document.getElementById('signSkip').onclick=()=>{ signHasInk=false; buildTip(); };
 
 /* ----- camera-cover detection (hosted https only) ----- */
 let payStream=null, payRAF=null;
@@ -863,27 +1147,117 @@ function finishPay(tip){
   payTip=tip;
   const grand=payBase+payTip;
   showStage('stageDone');
-  document.getElementById('doneTitle').textContent='All done! 🎉';
+  document.getElementById('doneTitle').textContent=grand<0?'Refund issued 💸':'All done! 🎉';
   document.getElementById('doneBreak').innerHTML=
-    'Items '+money(payBase)+(payTip?'<br>Tip '+money(payTip):'')+
-    '<br><b style="color:var(--ink);font-size:16px;">Total paid '+money(grand)+'</b>';
+    'Subtotal '+money(payBase)+(payTip?'<br>Tip '+money(payTip):'')+
+    '<br><b style="color:var(--ink);font-size:16px;">Total '+money(grand)+'</b>';
+  // reset rating stars
+  document.querySelectorAll('.rate-star').forEach(s=>s.classList.remove('lit'));
+  document.getElementById('rateBlock').style.display=grand>=0?'block':'none';
   chime(true);
   if(tip>0) setTimeout(sfxCoins, 400);
   setTimeout(sfxBagRustle, 900);
-  // customer iPad → tell the cashier the sale completed
+  // customer iPad → tell cashier the sale completed
   if(shareRole==='customer' && shareLinked){
-    pubShare({type:'payDone', base:payBase, tip:payTip, total:grand});
+    pubShare({type:'payDone', base:payBase, tip:payTip, total:grand, signed:signHasInk});
+  } else {
+    // standalone or cashier-only: record in EOD
+    recordSale(payBase, payTip, grand);
   }
 }
+/* ----- star rating ----- */
+document.querySelectorAll('.rate-star').forEach(s=>{
+  s.onclick=()=>{
+    const r=+s.dataset.r;
+    document.querySelectorAll('.rate-star').forEach((x,i)=>x.classList.toggle('lit', i<r));
+    sfxPop();
+    if(shareRole==='customer' && shareLinked){
+      pubShare({type:'rating', stars:r});
+    } else {
+      recordRating(r);
+    }
+    toast('Thanks for the '+r+'★ rating!',true);
+  };
+});
+
 document.getElementById('payNew').onclick=()=>{
   closePayment();
   if(shareRole==='customer'){
-    // customer iPad → reset its view back to welcome
     custCart=[]; renderCustomerCart();
   } else {
-    cart=[]; renderCart();
+    cart=[];
+    // clear single-use discount/customer name after sale
+    if(discount && discount.label.indexOf('Coupon')===0) discount=null;
+    customerName=''; document.getElementById('custNameInput').value='';
+    refreshDiscountUI();
+    renderCart();
   }
   document.getElementById('tipInput').value='';
+};
+
+/* ===================================================================
+   END OF DAY tracking
+   =================================================================== */
+function recordSale(base, tip, grand){
+  if(!eod) return;
+  if(grand<0){
+    eod.refunds++;
+  } else {
+    eod.sales++;
+    eod.revenue+=grand;
+    eod.tips+=tip;
+    // record items in this sale
+    cart.forEach(c=>{
+      const sign=c.refund?-1:1;
+      eod.itemCounts[c.id]=(eod.itemCounts[c.id]||0) + c.qty*sign;
+    });
+  }
+  saveEOD();
+}
+function recordRating(stars){
+  if(!eod) return;
+  eod.ratings.push(stars);
+  saveEOD();
+}
+
+function openEodReport(){
+  if(!eod){ toast('Not loaded yet'); return; }
+  document.getElementById('eodSales').textContent=eod.sales;
+  document.getElementById('eodRev').textContent=money(eod.revenue);
+  document.getElementById('eodTips').textContent=money(eod.tips);
+  document.getElementById('eodRefunds').textContent=eod.refunds;
+  document.getElementById('eodAvg').textContent=money(eod.sales?eod.revenue/eod.sales:0);
+  if(eod.ratings.length){
+    const avg=eod.ratings.reduce((a,b)=>a+b,0)/eod.ratings.length;
+    document.getElementById('eodRating').textContent=avg.toFixed(1)+'★';
+  } else { document.getElementById('eodRating').textContent='—'; }
+  // best seller
+  let bestId=null, bestN=0;
+  Object.keys(eod.itemCounts).forEach(id=>{
+    if(eod.itemCounts[id]>bestN){ bestN=eod.itemCounts[id]; bestId=id; }
+  });
+  const box=document.getElementById('eodBestBox');
+  if(bestId){
+    const it=catalog.find(x=>x.id===bestId);
+    box.style.display='block';
+    document.getElementById('eodBest').textContent=(it?it.name:'#'+bestId)+' — '+bestN+' sold';
+  } else { box.style.display='none'; }
+  // when
+  const opened=new Date(eod.openedAt);
+  document.getElementById('eodWhen').textContent='Open since '+opened.toLocaleString();
+  document.getElementById('eodOverlay').classList.add('open');
+  sfxSwoosh();
+}
+document.getElementById('eodBtn').onclick=openEodReport;
+document.getElementById('eodX').onclick=()=>document.getElementById('eodOverlay').classList.remove('open');
+document.getElementById('eodKeep').onclick=()=>document.getElementById('eodOverlay').classList.remove('open');
+document.getElementById('eodClose').onclick=()=>{
+  if(!confirm('Close the register and start a new day? This will reset your sales report.')) return;
+  eod={openedAt:Date.now(), sales:0, revenue:0, tips:0, refunds:0, ratings:[], itemCounts:{}};
+  saveEOD();
+  document.getElementById('eodOverlay').classList.remove('open');
+  sfxStoreOpen();
+  toast('New day started! 🌅',true);
 };
 
 /* ===================================================================
@@ -1130,7 +1504,15 @@ function broadcastCart(){
     const it=catalog.find(x=>x.id===c.id);
     return it?{id:c.id,name:it.name,price:it.price,image:it.image||null,qty:c.qty,refund:!!c.refund}:null;
   }).filter(Boolean);
-  pubShare({type:'cart', items, total:cartTotal(), returnsMode:returnsMode});
+  pubShare({
+    type:'cart', items,
+    subtotal:cartSubtotal(),
+    discount:cartDiscount(),
+    discountLabel:discountLabel(),
+    total:cartTotal(),
+    returnsMode:returnsMode,
+    customerName:customerName
+  });
 }
 
 function connectShare(code, role){
@@ -1202,7 +1584,11 @@ function handleShareMsg(msg){
   if(msg.type==='cart' && shareRole==='customer'){
     custCart=msg.items||[];
     custReturnsMode=!!msg.returnsMode;
+    custSubtotal=msg.subtotal||0;
+    custDisc=msg.discount||0;
+    custDiscLabel=msg.discountLabel||'';
     custTotal=msg.total||0;
+    custName=msg.customerName||'';
     renderCustomerCart();
     if(custCart.length) sfxChaChing();
     return;
@@ -1219,9 +1605,23 @@ function handleShareMsg(msg){
   }
   if(msg.type==='payDone' && shareRole==='cashier'){
     document.getElementById('waitOverlay').classList.remove('open');
-    cart=[]; renderCart();
+    // record sale for EOD on cashier side
+    payBase=msg.base||0; payTip=msg.tip||0;
+    recordSale(payBase, payTip, msg.total||0);
+    cart=[];
+    // clear single-use discount after sale
+    if(discount && discount.label.indexOf('Coupon')===0) discount=null;
+    customerName=''; document.getElementById('custNameInput').value='';
+    refreshDiscountUI();
+    renderCart();
     sfxFanfare();
-    toast('Payment received! '+money(msg.total)+(msg.tip>0?' (tip '+money(msg.tip)+')':''),true);
+    toast('Payment received! '+money(msg.total)+(msg.tip>0?' (tip '+money(msg.tip)+')':'')+(msg.signed?' ✍️':''),true);
+    return;
+  }
+  if(msg.type==='rating' && shareRole==='cashier'){
+    recordRating(msg.stars);
+    sfxPop();
+    toast('Customer rated '+msg.stars+'★ ✨',true);
     return;
   }
   if(msg.type==='payCancel' && shareRole==='cashier'){
@@ -1304,14 +1704,17 @@ document.getElementById('waitCancel').onclick=()=>{
 };
 
 /* ---------- Customer-facing display rendering ---------- */
-let custReturnsMode=false, custTotal=0;
+let custReturnsMode=false, custTotal=0, custSubtotal=0, custDisc=0, custDiscLabel='', custName='';
 function renderCustomerCart(){
   const list=document.getElementById('custList'), empty=document.getElementById('custEmpty');
+  // welcome name
+  document.getElementById('custWelcomeName').innerHTML=custName?', <span class="cust-welcome-name">'+esc(custName)+'</span>':'';
   if(!custCart.length){
     list.classList.remove('on');
     empty.classList.remove('hide');
     document.getElementById('custTotal').textContent='$0.00';
     document.getElementById('custTotalLabel').textContent='TOTAL';
+    document.getElementById('custDiscountLine').style.display='none';
     return;
   }
   empty.classList.add('hide');
@@ -1328,6 +1731,12 @@ function renderCustomerCart(){
       '<div class="cl-pr">'+money(lt)+'</div>';
     list.appendChild(ln);
   });
+  // discount line
+  const dl=document.getElementById('custDiscountLine');
+  if(custDisc>0){
+    dl.innerHTML='<span>'+esc(custDiscLabel||'Discount')+'</span><span>−'+money(custDisc)+'</span>';
+    dl.style.display='flex';
+  } else { dl.style.display='none'; }
   document.getElementById('custTotal').textContent=money(custTotal);
   document.getElementById('custTotalLabel').textContent=custTotal<0?'TO REFUND':'TOTAL';
 }
@@ -1335,9 +1744,10 @@ function renderCustomerCart(){
 /* ---------- init ---------- */
 (async function init(){
   catalog = await load();
-  renderItems(); renderShop(); renderCart();
+  eod = await loadEOD();
+  renderItems(); renderShop(); refreshDiscountUI(); renderCart();
   maybeAutoScan();
-  setTimeout(sfxDoorChime, 600); // store opening chime on load
+  setTimeout(sfxDoorChime, 600);
 })();
 </script>
 </body>
