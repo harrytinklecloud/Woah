@@ -170,6 +170,52 @@
   .toast.show{transform:translateX(-50%) translateY(0);}
   .toast.win{background:linear-gradient(140deg,var(--mint),var(--sky));}
 
+  /* ===== Payment terminal ===== */
+  #payOverlay{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:18px;
+    background:rgba(40,28,58,.55);backdrop-filter:blur(6px);}
+  #payOverlay.open{display:flex;animation:fade .2s ease;}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .pay-card{width:100%;max-width:380px;background:#fff;border-radius:28px;box-shadow:0 24px 60px rgba(40,28,58,.4);
+    padding:22px;text-align:center;animation:rise .28s cubic-bezier(.2,1.3,.4,1);}
+  @keyframes rise{from{transform:translateY(20px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+  .pay-stage{display:none;}
+  .pay-stage.on{display:block;}
+  .pay-amt{font-family:'Fredoka';font-weight:700;font-size:44px;line-height:1;margin:4px 0 2px;}
+  .pay-amt small{display:block;font-family:'Nunito';font-weight:800;font-size:12px;color:var(--ink-soft);letter-spacing:1px;margin-bottom:6px;}
+  .pay-title{font-family:'Fredoka';font-weight:600;font-size:22px;margin:0 0 4px;}
+  .pay-sub2{color:var(--ink-soft);font-weight:700;font-size:13px;margin:0 0 14px;}
+
+  /* the tap reader */
+  .reader-pad{position:relative;width:200px;height:200px;margin:6px auto 14px;border-radius:26px;cursor:pointer;
+    background:linear-gradient(150deg,var(--grape),var(--sky));overflow:hidden;
+    box-shadow:0 12px 0 rgba(0,0,0,.12), var(--shadow);transition:transform .1s;}
+  .reader-pad:active{transform:translateY(6px) scale(.98);box-shadow:0 6px 0 rgba(0,0,0,.12);}
+  .reader-pad video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;transform:scaleX(-1);}
+  .reader-pad .nfc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.25);}
+  .reader-pad .nfc .wave{font-size:54px;animation:pulse 1.4s ease-in-out infinite;}
+  .reader-pad .nfc b{font-family:'Fredoka';font-weight:600;font-size:16px;letter-spacing:.5px;}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.12);opacity:1}}
+
+  .spinner{width:54px;height:54px;border-radius:50%;border:6px solid #EFE6F6;border-top-color:var(--grape);margin:18px auto;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .check{width:96px;height:96px;border-radius:50%;background:linear-gradient(140deg,var(--mint),var(--sky));margin:8px auto 12px;
+    display:flex;align-items:center;justify-content:center;animation:popcheck .4s cubic-bezier(.2,1.5,.4,1);}
+  .check svg{width:50px;height:50px;}
+  @keyframes popcheck{from{transform:scale(0)}to{transform:scale(1)}}
+
+  .tip-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0 4px;}
+  .tip-btn{border:none;cursor:pointer;font-family:'Fredoka';font-weight:600;font-size:17px;color:var(--ink);
+    background:#FBF6FE;box-shadow:inset 0 0 0 2px var(--line);padding:16px;border-radius:16px;transition:transform .08s;}
+  .tip-btn:active{transform:scale(.96);}
+  .tip-btn .pct{display:block;font-size:20px;}
+  .tip-btn .val{display:block;font-family:'Nunito';font-weight:800;font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .tip-custom{display:none;gap:8px;margin-top:10px;}
+  .tip-custom.on{display:flex;}
+  .tip-custom input{flex:1;font-family:'Nunito';font-weight:800;font-size:18px;text-align:center;padding:12px;border:none;border-radius:14px;background:#FBF6FE;box-shadow:inset 0 0 0 2px var(--line);outline:none;}
+  .pay-cancel{margin-top:8px;background:none;border:none;color:var(--ink-soft);font-family:'Nunito';font-weight:800;font-size:14px;cursor:pointer;padding:8px;}
+  .breakdown{font-weight:800;color:var(--ink-soft);font-size:13px;margin-top:6px;line-height:1.5;}
+
   @media (max-width:420px){ .grid,.tags{grid-template-columns:repeat(2,1fr);} }
 
   /* Print sheet */
@@ -279,6 +325,58 @@
 <!-- Hidden print sheet -->
 <div class="print-only"><div id="printSheet"></div></div>
 
+<!-- ===== Payment terminal ===== -->
+<div id="payOverlay">
+  <div class="pay-card">
+
+    <!-- Stage 1: tap to pay -->
+    <div class="pay-stage on" id="stageTap">
+      <div class="pay-amt"><small>AMOUNT DUE</small><span id="payAmt">$0.00</span></div>
+      <div class="reader-pad" id="readerPad">
+        <video id="payVideo" playsinline muted></video>
+        <div class="nfc"><span class="wave">📶</span><b>TAP TO PAY</b></div>
+      </div>
+      <p class="pay-sub2" id="tapHint">Tap the reader to pay</p>
+      <button class="pay-cancel" id="payCancel">Cancel</button>
+    </div>
+
+    <!-- Stage 2: processing -->
+    <div class="pay-stage" id="stageProc">
+      <div class="spinner"></div>
+      <p class="pay-title">Processing…</p>
+      <p class="pay-sub2">Hold tight!</p>
+    </div>
+
+    <!-- Stage 3: approved -->
+    <div class="pay-stage" id="stageOk">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6"/></svg></div>
+      <p class="pay-title">Payment Accepted</p>
+      <p class="pay-sub2" id="okAmt"></p>
+    </div>
+
+    <!-- Stage 4: tip -->
+    <div class="pay-stage" id="stageTip">
+      <p class="pay-title">Add a tip?</p>
+      <p class="pay-sub2">Thanks for shopping at Squishy Store! 💕</p>
+      <div class="tip-row" id="tipRow"></div>
+      <div class="tip-custom" id="tipCustom">
+        <input type="number" id="tipInput" inputmode="decimal" placeholder="$ amount" step="0.25" min="0" />
+        <button class="btn green small" style="width:auto;" id="tipAdd">Add</button>
+      </div>
+      <button class="tip-btn" id="tipNone" style="width:100%;margin-top:10px;">No tip</button>
+    </div>
+
+    <!-- Stage 5: done -->
+    <div class="pay-stage" id="stageDone">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg></div>
+      <p class="pay-title" id="doneTitle">All done! 🎉</p>
+      <p class="breakdown" id="doneBreak"></p>
+      <button class="btn green" style="margin-top:14px;" id="payNew">New sale</button>
+    </div>
+
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -312,6 +410,7 @@ document.querySelectorAll('.tab').forEach(t=>{
     t.classList.add('active');
     document.getElementById(t.dataset.tab).classList.add('active');
     if(t.dataset.tab!=='shop' && scanning) stopScan();
+    if(t.dataset.tab==='shop') maybeAutoScan();
     if(t.dataset.tab==='print') renderTags();
   };
 });
@@ -433,16 +532,149 @@ function renderCart(){
   document.getElementById('cartTotal').textContent=money(cartTotal());
 }
 document.getElementById('clearCart').onclick=()=>{cart=[];renderCart();};
-document.getElementById('chargeBtn').onclick=()=>{
+document.getElementById('chargeBtn').onclick=openPayment;
+
+/* ===== Payment terminal ===== */
+const TIP_PCTS=[15,18,20];
+let payBase=0, payTip=0, payCam=false;
+
+function showStage(id){
+  document.querySelectorAll('.pay-stage').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function openPayment(){
   if(!cart.length) return;
-  const t=cartTotal();
-  toast('Paid '+money(t)+'! 🎉 Thank you!',true);
-  cart=[]; renderCart();
+  payBase=cartTotal(); payTip=0;
+  document.getElementById('payAmt').textContent=money(payBase);
+  showStage('stageTap');
+  document.getElementById('tipCustom').classList.remove('on');
+  document.getElementById('payOverlay').classList.add('open');
+  startPayCamera();
+}
+
+function closePayment(){
+  stopPayCamera();
+  document.getElementById('payOverlay').classList.remove('open');
+}
+
+/* tap the reader OR cover the camera */
+document.getElementById('readerPad').onclick=()=>acceptPayment();
+document.getElementById('payCancel').onclick=closePayment;
+
+function acceptPayment(){
+  stopPayCamera();
+  showStage('stageProc');
+  setTimeout(()=>{
+    showStage('stageOk');
+    document.getElementById('okAmt').textContent=money(payBase);
+    chime();
+    setTimeout(buildTip,1300);
+  },750);
+}
+
+/* ----- camera-cover detection (hosted https only) ----- */
+let payStream=null, payRAF=null;
+async function startPayCamera(){
+  payCam=false;
+  const hint=document.getElementById('tapHint');
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){ hint.textContent='Tap the reader to pay'; return; }
+  try{
+    payStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+    const v=document.getElementById('payVideo');
+    v.srcObject=payStream; await v.play();
+    payCam=true;
+    hint.textContent='Cover the camera with your card — or tap the reader';
+    const c=document.createElement('canvas'); c.width=32; c.height=32;
+    const ctx=c.getContext('2d');
+    let armed=false, bright=0, dark=0;
+    const loop=()=>{
+      if(!payStream) return;
+      try{
+        ctx.drawImage(v,0,0,32,32);
+        const d=ctx.getImageData(0,0,32,32).data; let sum=0;
+        for(let i=0;i<d.length;i+=4){ sum+=d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114; }
+        const avg=sum/(d.length/4);
+        if(avg>60){ if(++bright>5) armed=true; }
+        if(armed && avg<24){ if(++dark>=4){ acceptPayment(); return; } } else { dark=0; }
+      }catch(e){}
+      payRAF=requestAnimationFrame(loop);
+    };
+    payRAF=requestAnimationFrame(loop);
+  }catch(e){ document.getElementById('tapHint').textContent='Tap the reader to pay'; }
+}
+function stopPayCamera(){
+  if(payRAF){ cancelAnimationFrame(payRAF); payRAF=null; }
+  if(payStream){ payStream.getTracks().forEach(t=>t.stop()); payStream=null; }
+  const v=document.getElementById('payVideo'); if(v) v.srcObject=null;
+}
+
+/* ----- tip ----- */
+function buildTip(){
+  showStage('stageTip');
+  const row=document.getElementById('tipRow'); row.innerHTML='';
+  TIP_PCTS.forEach(p=>{
+    const amt=payBase*p/100;
+    const b=document.createElement('button'); b.className='tip-btn';
+    b.innerHTML='<span class="pct">'+p+'%</span><span class="val">'+money(amt)+'</span>';
+    b.onclick=()=>finishPay(amt);
+    row.appendChild(b);
+  });
+  const custom=document.createElement('button'); custom.className='tip-btn';
+  custom.innerHTML='<span class="pct">✏️</span><span class="val">Custom</span>';
+  custom.onclick=()=>document.getElementById('tipCustom').classList.toggle('on');
+  row.appendChild(custom);
+}
+document.getElementById('tipNone').onclick=()=>finishPay(0);
+document.getElementById('tipAdd').onclick=()=>{
+  const v=parseFloat(document.getElementById('tipInput').value);
+  finishPay(isNaN(v)||v<0?0:v);
 };
+
+function finishPay(tip){
+  payTip=tip;
+  const grand=payBase+payTip;
+  showStage('stageDone');
+  document.getElementById('doneTitle').textContent='All done! 🎉';
+  document.getElementById('doneBreak').innerHTML=
+    'Items '+money(payBase)+(payTip?'<br>Tip '+money(payTip):'')+
+    '<br><b style="color:var(--ink);font-size:16px;">Total paid '+money(grand)+'</b>';
+  chime(true);
+}
+document.getElementById('payNew').onclick=()=>{
+  closePayment();
+  cart=[]; renderCart();
+  document.getElementById('tipInput').value='';
+};
+
+/* ----- sounds ----- */
+function chime(flourish){
+  try{
+    const A=new (window.AudioContext||window.webkitAudioContext)();
+    const now=A.currentTime;
+    const notes=flourish?[[880,0],[1174.7,.1],[1568,.2]]:[[880,0],[1318.5,.12]];
+    notes.forEach(([f,t])=>{
+      const o=A.createOscillator(), g=A.createGain();
+      o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(A.destination);
+      g.gain.setValueAtTime(0.0001,now+t);
+      g.gain.exponentialRampToValueAtTime(0.28,now+t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,now+t+0.5);
+      o.start(now+t); o.stop(now+t+0.55);
+    });
+  }catch(e){}
+}
 
 /* ---------- scanning ---------- */
 const scanBtn=document.getElementById('scanToggle');
 scanBtn.onclick=()=> scanning?stopScan():startScan();
+
+/* auto-start the camera on a hosted (https) page — not inside the artifact, where it's blocked */
+function maybeAutoScan(){
+  if(scanning) return;
+  if(HAS_WS) return;                 // running in the Claude artifact → camera blocked
+  if(!window.isSecureContext) return; // file:// → needs https
+  startScan();
+}
 
 /* type-the-number checkout (works everywhere, incl. the artifact) */
 function ringByCode(){
@@ -609,10 +841,10 @@ document.getElementById('printBtn').onclick=()=>printTags(catalog);
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 /* ---------- init ---------- */
-/* ---------- init ---------- */
 (async function init(){
   catalog = await load();
   renderItems(); renderShop(); renderCart();
+  maybeAutoScan();   // Shop is the default tab → turn the camera on automatically
 })();
 </script>
 </body>
